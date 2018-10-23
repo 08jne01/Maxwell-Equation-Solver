@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <SFML/Graphics.hpp>
+#include <Eigen/Sparse>
+#include <ctime>
 
 #define PI 3.14159
 

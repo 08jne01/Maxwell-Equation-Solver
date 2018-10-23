@@ -4,7 +4,8 @@
 int main()
 
 {
-	Program p(1000, 1000);
+	sf::err().rdbuf(NULL);
+	Program p(300, 300);
 
 	return p.mainLoop();
 }
