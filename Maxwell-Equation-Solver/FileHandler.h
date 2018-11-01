@@ -7,6 +7,7 @@ class FileHandler
 public:
 
 	FileHandler();
+	std::vector<double> readBMP(std::string filename);
 
 private:
 

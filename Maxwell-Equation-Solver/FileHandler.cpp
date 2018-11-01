@@ -5,3 +5,10 @@ FileHandler::FileHandler()
 {
 
 }
+
+std::vector<double> FileHandler::readBMP(std::string filename)
+
+{
+
+
+}

@@ -1,18 +1,18 @@
-#include "Solver.h"
+#include "SolverLaplace.h"
 
-Solver::Solver(int n): size(n), m(n*n), matrix(m, m), b(m)
+SolverLaplace::SolverLaplace(int n): size(n), m(n*n), matrix(m, m), b(m)
 
 {
 	b.setZero(); //Sets b to all zeros
 }
 
-int Solver::index(int i, int j)
+int SolverLaplace::index(int i, int j)
 
 {
 	return i + j * size;
 }
 
-void Solver::insertCoeff(int superI, int i, int j, double w, double source)
+void SolverLaplace::insertCoeff(int superI, int i, int j, double w, double source)
 
 {
 	
@@ -48,7 +48,7 @@ void Solver::insertCoeff(int superI, int i, int j, double w, double source)
 	}
 }
 
-void Solver::buildProblem()
+void SolverLaplace::buildProblem()
 
 {
 	for (int j = 0; j < size; j++)
@@ -71,7 +71,7 @@ void Solver::buildProblem()
 	}
 }
 
-void Solver::solveProblem() //Solves
+void SolverLaplace::solveProblem() //Solves
 
 {
 	matrix.setFromTriplets(coeffs.begin(), coeffs.end());
@@ -79,7 +79,7 @@ void Solver::solveProblem() //Solves
 	x = chol.solve(b);
 }
 
-void Solver::saveProblem() //Saves to values
+void SolverLaplace::saveProblem() //Saves to values
 
 {
 	for (int j = 0; j < size; j++)
@@ -95,7 +95,7 @@ void Solver::saveProblem() //Saves to values
 	}
 }
 
-void Solver::writeProblem() //Writes to file
+void SolverLaplace::writeProblem() //Writes to file
 
 {
 	std::ofstream file;
@@ -112,7 +112,7 @@ void Solver::writeProblem() //Writes to file
 	file.close();
 }
 
-void Solver::normalise()
+void SolverLaplace::normalise()
 
 {
 	double max = 0.0;
@@ -142,7 +142,7 @@ void Solver::normalise()
 	}
 }
 
-double Solver::f(double x, double a, double b, double c)
+double SolverLaplace::f(double x, double a, double b, double c)
 
 {
 	return a * sin(x*b)*sin(x*b)*exp(c*x);

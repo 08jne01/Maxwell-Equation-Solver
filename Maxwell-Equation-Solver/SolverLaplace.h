@@ -1,12 +1,12 @@
 #pragma once
 #include "Header.h"
 //Class for PDE solver. We can split this later into other classes if it gets too large.
-class Solver
+class SolverLaplace
 
 {
 public:
 
-	Solver(int n);
+	SolverLaplace(int n);
 
 	typedef Eigen::Triplet<double> triplet; //short-hand
 	typedef Eigen::SparseMatrix<double> sparseMatrix; //short-hand

@@ -127,18 +127,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Clock.cpp" />
     <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MaxwellSolver.cpp" />
     <ClCompile Include="Program.cpp" />
-    <ClCompile Include="Solver.cpp" />
+    <ClCompile Include="SolverLaplace.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Clock.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Interface.h" />
+    <ClInclude Include="MaxwellSolver.h" />
     <ClInclude Include="Program.h" />
-    <ClInclude Include="Solver.h" />
+    <ClInclude Include="SolverLaplace.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
