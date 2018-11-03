@@ -13,6 +13,7 @@
 #include <Spectra/MatOp/SparseGenMatProd.h>
 #include <complex>
 #include <ctime>
+#include <iomanip>
 
 #define PI 3.14159
 

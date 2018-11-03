@@ -7,13 +7,14 @@ class MaxwellSolver
 {
 public:
 
-	MaxwellSolver(int number, double kFreq); //Size of one side of grid
+	MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs); //Size of one side of grid
 
 	typedef Eigen::Triplet<double> Triplet;
 	typedef Eigen::SparseMatrix<double> SparseM;
 
 	int index(int i, int j);
 	void condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4, SparseM &returnMatrix);
+	void condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ);
 	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val);
 	void buildPerm();
 	void buildPotCoeffs();
@@ -39,6 +40,6 @@ private:
 
 	SparseM matrix;
 	
-	int n, m;
-	double k, deltaX, deltaY;
+	int n, m, numEigs;
+	double k, deltaX, deltaY, perm;
 };

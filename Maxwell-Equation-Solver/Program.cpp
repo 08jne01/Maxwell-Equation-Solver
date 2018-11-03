@@ -1,6 +1,7 @@
 #include "Program.h"
 //General program class
-Program::Program(int width, int height): w(width), h(height), window(sf::VideoMode(width,height), "Maxwell Equation Solver")
+Program::Program(int width, int height, int iters, int eigVals, double kVal, double length, double permativity): 
+	w(width), h(height), window(sf::VideoMode(width,height), "Maxwell Equation Solver"), its(iters), eigs(eigVals), k(kVal), l(length), perm(permativity)
 
 {
 	points.setPrimitiveType(sf::Points);
@@ -18,7 +19,7 @@ int Program::mainLoop()
 		return EXIT_FAILURE;
 	}
 
-	calculate(200);
+	calculate(its);
 	int mode = 0;
 
 	while (window.isOpen())
@@ -34,16 +35,16 @@ int Program::mainLoop()
 			}
 		}
 
-		if (sfClock.getElapsedTime().asSeconds() > 1.0)
+		if (sfClock.getElapsedTime().asSeconds() > 0.5)
 
 		{
-			setMode(mode % 10);
-			std::cout << "Current Mode: " << mode % 10 << std::endl;
+			setMode(mode % eigs);
+			std::cout << "Current Mode: " << (mode % eigs) + 1 << std::endl;
 			mode++;
 			sfClock.restart();
 		}
 
-		window.clear(sf::Color::Black);
+		window.clear(sf::Color::White);
 
 		//Draw Here
 		draw();
@@ -65,7 +66,12 @@ void Program::calculate(int size)
 
 {
 	Clock c;
-	MaxwellSolver max(size, 1000000);
+
+	int calcSize = size % 4 + size;
+
+	//double k = 1000000.0;
+
+	MaxwellSolver max(calcSize, k, l, perm, eigs);
 	max.buildPerm();
 	max.buildPotCoeffs();
 	max.buildMatrix();
@@ -73,6 +79,7 @@ void Program::calculate(int size)
 	std::cout << "=====================" << std::endl << "All done in " << c.elapsed() << " ms" << std::endl;
 
 	vectors = max.eigenVectors;
+	eigenValues = max.eigenVals;
 	
 }
 
@@ -81,11 +88,20 @@ void Program::setMode(int mode)
 {
 	points.clear();
 	Eigen::VectorXd vec = vectors.col(mode);
+	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
 	std::vector<double> values;
-	for (int i = 0; i < vec.size() / 2; i++)
+	int step = 4;
+	for (int i = 0; i < sqrt(vec.size() / 2); i+=step)
 
 	{
-		values.push_back(sqrt(vec[i]*vec[i]));
+		for (int j = 0; j < sqrt(vec.size() / 2); j+=step)
+
+		{
+			double num = vec[i + j*(sqrt(vec.size() / 2))];
+				//std::cout << num << std::endl;
+			values.push_back(num);
+
+		}
 	}
 
 	std::vector<double> normal;
@@ -98,9 +114,27 @@ void Program::setMode(int mode)
 		for (int j = 0; j < w; j++)
 
 		{
-			double val = getValue(normal, sqrt(vec.size() / 2), i, j, w, w);
+			double val = getValue(normal, sqrt(vec.size() / 2) / step, i, j, w, w);
+			double colorR, colorB, colorG;
+			if (val < 0.0)
+
+			{
+				colorB = 255 - pow((val + 1), 1)*255;
+				colorR = 0;
+				colorG = 255 - 255 * (-(val*val) + 1);
+			}
+
+			else
+
+			{
+				colorR = 255 - pow(-(val - 1), 1) * 255;
+				colorB = 0;
+				colorG = 255 - 255*(-(val*val) + 1);
+			}
+
 			//std::cout << val << std::endl;
-			points.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(255 * val, 255 * val, 255 * val)));
+			//std::cout << colorR << std::endl;
+			points.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(colorR, colorG, colorB)));
 		}
 	}
 }
@@ -108,9 +142,16 @@ void Program::setMode(int mode)
 double Program::interpolate(double d1, double d2, double w)
 
 {
-	return d1 + w * (d2 - d1);
+	//return d1 + w * (d2 - d1);
 	//double w2 = (1 - cos(w*PI)) / 2.0;
 	//return (d1 * (1 - w2) + d2 * w2);
+	///*
+	double a = 2 * d1 - 2 * d2;
+	double b = -3 * d1 + 3 * d2;
+	double d = d1;
+
+	return w*w*w*a + b * w*w + d;
+	//*/
 }
 
 double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x, int y, int w, int h)
@@ -124,11 +165,22 @@ double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x,
 	int yVal0 = (int)yVal;
 	int yVal1 = yVal0 + 1;
 
-	double sX = xVal - double(xVal0);
-	double sY = yVal - double(yVal0);
+	double sX = pow(xVal - double(xVal0),1);
+	double sY = pow(yVal - double(yVal0),1);
+	/*
+	double s00 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal0, 2));
+	double s01 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal1, 2));
+	double s10 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal0, 2));
+	double s11 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal1, 2));
 
+	double v00 = s00 * gridPoints[xVal0 + yVal0 * sideLength];
+	double v01 = s01 * gridPoints[xVal0 + yVal1 * sideLength];
+	double v10 = s10 * gridPoints[xVal1+ yVal0 * sideLength];
+	double v11 = s11 * gridPoints[xVal1 + yVal1 * sideLength];
+
+	return (v00 + v01 + v10 + v11) / 4.0;
+	*/
 	double ix0, ix1, n0, n1;
-
 	n0 = gridPoints[xVal0 + yVal0 * sideLength];
 	n1 = gridPoints[xVal1 + yVal0 * sideLength];
 
@@ -138,23 +190,34 @@ double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x,
 	n1 = gridPoints[xVal1 + yVal1 * sideLength];
 
 	ix1 = interpolate(n0, n1, sX);
+	/*
+	if (xVal == xVal0 && yVal == yVal0)
 
+	{
+		return gridPoints[xVal0 + yVal0 * sideLength];
+	}
+
+	else
+
+	{
+		return 0.0;
+	}
+	*/
 	return interpolate(ix0, ix1, sY);
-
 }
 
 void Program::normalise(std::vector<double> &vec, std::vector<double> &normalisedVals)
 
 {
-	double max = 0.0;
+	double max = -1.0;
 
 	for (int i = 0; i < vec.size(); i++)
 
 	{
-		if (vec[i] > max)
+		if (abs(vec[i]) > max)
 
 		{
-			max = vec[i];
+			max = abs(vec[i]);
 		}
 	}
 
@@ -169,10 +232,10 @@ void Program::normalise(std::vector<double> &vec, std::vector<double> &normalise
 			val = 1.0;
 		}
 
-		else if (val < 0.0)
+		else if (val < -1.0)
 
 		{
-			val = 0.0;
+			val = -1.0;
 		}
 
 		normalisedVals.push_back(val);
