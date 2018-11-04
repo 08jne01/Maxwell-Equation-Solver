@@ -11,7 +11,7 @@ public:
 	Program(int width, int height, int iters, int eigVals, double kVal, double length, double permativity); //Only need 1 constructor since we will call this once
 	int mainLoop(); //Mainloop for program
 	void draw(); //Draw Call
-	void calculate(int size); //Calculate
+	int calculate(int size); //Calculate
 	void setMode(int mode);
 	void normalise(std::vector<double> &vec, std::vector<double> &normalisedVals);
 	double interpolate(double d1, double d2, double w);

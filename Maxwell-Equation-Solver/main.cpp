@@ -14,7 +14,7 @@ int main()
 
 	{
 		iters = 40;
-		numEigs = 50;
+		numEigs = 5;
 		length = 40.0;
 		k = 16 * PI*length;
 		width = 700;
@@ -43,4 +43,5 @@ int main()
 	Program p(width, width, iters, numEigs, k, length, perm);
 
 	return p.mainLoop();
+
 }

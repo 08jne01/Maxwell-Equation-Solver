@@ -131,13 +131,68 @@ void MaxwellSolver::insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, 
 	}
 }
 
+void MaxwellSolver::buildGeometry(double scale, std::string filename)
+
+{
+	//Allocate memory for filename and convert filename to char array so that string can be used
+	char *filenameCharArray = (char*)malloc(sizeof(char) * (filename.size() + 1));
+	strcpy_s(filenameCharArray, filename.size() + 1, filename.c_str());
+	//Open file and create write buffer
+	FILE *in;
+	fopen_s(&in, filenameCharArray, "rb");
+	unsigned char info[54];
+	fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
+	int width = *(int*)&info[18];
+	int height = *(int*)&info[22];
+	int size = 3 * width * height;
+	unsigned char* data = new unsigned char[size];
+	fread_s(data, size * sizeof(unsigned char), sizeof(unsigned char), size, in);
+	fclose(in);
+	free(filenameCharArray);
+
+	for (int i = 0; i < width*height; i++)
+
+	{
+		double val = scale*(double)(data[3 * (i)] + data[3 * (i)+1] + data[3 * (i)+2]) / (3.0*255) + 1.0;
+		perms.push_back(val);
+		//if (val != 1.0) std::cout << val << std::endl;
+	}
+	//Need to make a check for sizes!
+	delete data;
+	std::cout << filename << " geometry imported!" << std::endl;
+}
+
 void MaxwellSolver::buildPerm()
 
 {
 
 	double val = 1.0;
+	if (perms.size() <= 1)
 
-	std::vector<double> perms;
+	{
+		for (int i = 0; i < n; i++)
+
+		{
+			for (int j = 0; j < n; j++)
+
+			{
+				if (i > n / 4 && i < 3 * n / 4 && j > n / 4 && j < 3 * n / 4)
+
+				{
+					//perms.push_back(1.00000001);
+					perms.push_back(perm);
+				}
+
+				else
+
+				{
+					perms.push_back(1.0);
+				}
+			}
+		}
+	}
+	
+	if (perms.size() != m) std::cout << "HELP!" << perms.size() << " " << m << std::endl;
 
 	for (int i = 0; i < n; i++)
 
@@ -145,33 +200,37 @@ void MaxwellSolver::buildPerm()
 		for (int j = 0; j < n; j++)
 
 		{
-			if (i > n / 4 && i < 3 * n / 4 && j > n / 4 && j < 3 * n / 4)
+			double rx, ry, rz;
+
+			int superI = index(i, j);
+			
+			if (i == 0 || j == 0 || i == n || j == n)
 
 			{
-				//perms.push_back(1.00000001);
-				perms.push_back(perm);
+				rx = perms[index(i, j)];
+				ry = perms[index(i, j)];
+				rz = perms[index(i, j)];
 			}
 
 			else
 
 			{
-				perms.push_back(1.0);
+				rx = (perms[index(i, j)] + perms[index(i,j - 1)]) / 2;
+				ry = (perms[index(i, j)] + perms[index(i - 1, j)]) / 2;
+				rz = (perms[index(i, j)] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
 			}
+
+			std::cout << rx << " " << ry << " " << rz << std::endl;
+
+			coeffsPermX.push_back(Triplet(superI, superI, rx));
+			coeffsPermY.push_back(Triplet(superI, superI, ry));
+			coeffsPermZ.push_back(Triplet(superI, superI, rz));
+
+			coeffsPermXInverse.push_back(Triplet(superI, superI, 1.0 / rx));
+			coeffsPermYInverse.push_back(Triplet(superI, superI, 1.0 / ry));
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / rz));
 		}
-	}
-
-	for (int i = 0; i < m; i++)
-
-	{
-		val = perms[i];
-
-		coeffsPermX.push_back(Triplet(i, i, val));
-		coeffsPermY.push_back(Triplet(i, i, val));
-		coeffsPermZ.push_back(Triplet(i, i, val));
-
-		coeffsPermXInverse.push_back(Triplet(i, i, 1.0 / val));
-		coeffsPermYInverse.push_back(Triplet(i, i, 1.0 / val));
-		coeffsPermZInverse.push_back(Triplet(i, i, 1.0 / val));
+		
 	}
 }
 
@@ -350,26 +409,42 @@ void MaxwellSolver::buildMatrix()
 	matrix.makeCompressed();
 }
 
-void MaxwellSolver::findModes()
+int MaxwellSolver::findModes()
 
 {
 	std::cout << "Finding modes..." << std::endl;
 	Clock c;
 	Spectra::SparseGenMatProd<double> op(matrix);
 	int nev = numEigs;
-	Spectra::GenEigsSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenMatProd<double>> eigs(&op, nev, nev + 2 + n/10);
+	Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2*nev + m/2);
 	eigs.init();
 	int nconv = eigs.compute();
 
 	if (eigs.info() == Spectra::SUCCESSFUL)
 
 	{
+		std::cout << "Successful!" << std::endl;
 		eigenVals = eigs.eigenvalues().real();
 		eigenVectors = eigs.eigenvectors().real();
+		std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+		return EXIT_SUCCESS;
 	}
 
-	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
-	std::cout << std::setprecision(14) << eigenVals << std::endl;
+	else if (eigs.info() == Spectra::NOT_CONVERGING)
+
+	{
+		std::cout << "NOT CONVERGING!" << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	else if (eigs.info() == Spectra::NUMERICAL_ISSUE)
+
+	{
+		std::cout << "NUMERICAL ISSUE!" << std::endl;
+		return EXIT_FAILURE;
+	}
+	
+	//std::cout << std::setprecision(14) << eigenVals << std::endl;
 
 	//std::cout << eigenVectors.col(0).size() << std::endl;
 	

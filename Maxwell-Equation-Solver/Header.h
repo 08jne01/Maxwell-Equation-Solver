@@ -14,6 +14,7 @@
 #include <complex>
 #include <ctime>
 #include <iomanip>
+#include <Windows.h>
 
 #define PI 3.14159
 

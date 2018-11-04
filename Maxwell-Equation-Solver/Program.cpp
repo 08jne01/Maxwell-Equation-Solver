@@ -19,7 +19,12 @@ int Program::mainLoop()
 		return EXIT_FAILURE;
 	}
 
-	calculate(its);
+	if (calculate(its) != EXIT_SUCCESS)
+
+	{
+		return EXIT_FAILURE;
+	}
+
 	int mode = 0;
 
 	while (window.isOpen())
@@ -62,7 +67,7 @@ void Program::draw()
 	window.draw(points);
 }
 
-void Program::calculate(int size)
+int Program::calculate(int size)
 
 {
 	Clock c;
@@ -72,14 +77,28 @@ void Program::calculate(int size)
 	//double k = 1000000.0;
 
 	MaxwellSolver max(calcSize, k, l, perm, eigs);
+	max.buildGeometry(1.1, "TestFibre60.bmp");
 	max.buildPerm();
 	max.buildPotCoeffs();
 	max.buildMatrix();
-	max.findModes();
-	std::cout << "=====================" << std::endl << "All done in " << c.elapsed() << " ms" << std::endl;
+	
 
-	vectors = max.eigenVectors;
-	eigenValues = max.eigenVals;
+	if (max.findModes() == EXIT_SUCCESS)
+
+	{
+		vectors = max.eigenVectors;
+		eigenValues = max.eigenVals;
+		std::cout << "=====================" << std::endl << "All done in " << c.elapsed() << " ms" << std::endl;
+		return EXIT_SUCCESS;
+	}
+
+	else
+
+	{
+		system("PAUSE");
+		return EXIT_FAILURE;
+	}
+	
 	
 }
 
@@ -91,13 +110,13 @@ void Program::setMode(int mode)
 	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
 	std::vector<double> values;
 	int step = 4;
-	for (int i = 0; i < sqrt(vec.size() / 2); i+=step)
+	for (int i = 3; i < sqrt(vec.size() / 2); i+=step)
 
 	{
-		for (int j = 0; j < sqrt(vec.size() / 2); j+=step)
+		for (int j = 3; j < sqrt(vec.size() / 2); j+=step)
 
 		{
-			double num = vec[i + j*(sqrt(vec.size() / 2))];
+			double num = vec[i + j*(sqrt(vec.size()))];
 				//std::cout << num << std::endl;
 			values.push_back(num);
 
