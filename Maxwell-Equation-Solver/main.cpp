@@ -14,10 +14,10 @@ int main()
 
 	{
 		iters = 40;
-		numEigs = 5;
+		numEigs = 60;
 		length = 40.0;
 		k = 16 * PI*length;
-		width = 700;
+		width = 900;
 		perm = 5.0;
 	}
 

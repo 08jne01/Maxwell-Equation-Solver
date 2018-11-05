@@ -77,7 +77,7 @@ int Program::calculate(int size)
 	//double k = 1000000.0;
 
 	MaxwellSolver max(calcSize, k, l, perm, eigs);
-	max.buildGeometry(1.1, "TestFibre60.bmp");
+	max.buildGeometry(1.1, "Fibre40.bmp");
 	max.buildPerm();
 	max.buildPotCoeffs();
 	max.buildMatrix();
@@ -109,14 +109,14 @@ void Program::setMode(int mode)
 	Eigen::VectorXd vec = vectors.col(mode);
 	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
 	std::vector<double> values;
-	int step = 4;
-	for (int i = 3; i < sqrt(vec.size() / 2); i+=step)
+	int step = 1;
+	for (int i = 0; i < sqrt(vec.size() / 2); i+=step)
 
 	{
-		for (int j = 3; j < sqrt(vec.size() / 2); j+=step)
+		for (int j = 0; j < sqrt(vec.size() / 2); j+=step)
 
 		{
-			double num = vec[i + j*(sqrt(vec.size()))];
+			double num = vec[i + j*(sqrt(vec.size() / 2))];
 				//std::cout << num << std::endl;
 			values.push_back(num);
 
@@ -153,7 +153,7 @@ void Program::setMode(int mode)
 
 			//std::cout << val << std::endl;
 			//std::cout << colorR << std::endl;
-			points.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(colorR, colorG, colorB)));
+			points.append(sf::Vertex(sf::Vector2f(j, w - i), sf::Color(colorR, colorG, colorB)));
 		}
 	}
 }

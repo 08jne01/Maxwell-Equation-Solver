@@ -42,62 +42,16 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	std::cout << "Condensing matricies..." << std::endl;
 	Clock c;
 	std::vector<Triplet> v;
-	
+
 	std::vector<Triplet> v1;
 	std::vector<Triplet> v2;
 	std::vector<Triplet> v3;
 	std::vector<Triplet> v4;
-
+	//Parallised
 	std::thread tr1([&]() {condenseThread(m1, v1, 0, 0);});
 	std::thread tr2([&]() {condenseThread(m2, v2, 0, m); });
 	std::thread tr3([&]() {condenseThread(m3, v3, m, 0); });
 	std::thread tr4([&]() {condenseThread(m4, v4, m, m); });
-	
-
-	//condenseThread(m1, v, 0, 0);
-	//condenseThread(m2, v, 0, m);
-	//condenseThread(m3, v, m, 0);
-	//condenseThread(m4, v, m, m);
-
-	/*
-	for (int i = 0; i < 2 * m; i++)
-
-	{
-		for (int j = 0; j < 2 * m; j++)
-
-		{
-			if (i > -1 && i < m && j > -1 && j < m)
-
-			{
-				double val = m1.coeff(i, j);
-				if (val != 0.0) v.push_back(Triplet(i, j, val));
-			}
-
-			else if (i > m - 1 && i < 2 * m && j > -1 && j < m)
-
-			{
-				double val = m2.coeff(i - m, j);
-				if (val != 0.0) v.push_back(Triplet(i, j, val));
-			}
-
-			else if (i > -1 && i < m && j > m - 1 && j < 2 * m)
-
-			{
-				double val = m3.coeff(i, j - m);
-				if (val != 0.0) v.push_back(Triplet(i, j, val));
-			}
-
-			else if (i > m - 1 && i < 2 * m && j > m - 1 && j < 2 * m)
-
-			{
-				double val = m4.coeff(i - m, j - m);
-				if (val != 0.0) v.push_back(Triplet(i, j, val));
-			}
-		}
-	}
-	*/
-	
-
 	
 	tr1.join();
 	tr2.join();
@@ -167,6 +121,7 @@ void MaxwellSolver::buildPerm()
 {
 
 	double val = 1.0;
+	//Default Case
 	if (perms.size() <= 1)
 
 	{
@@ -191,9 +146,7 @@ void MaxwellSolver::buildPerm()
 			}
 		}
 	}
-	
-	if (perms.size() != m) std::cout << "HELP!" << perms.size() << " " << m << std::endl;
-
+	//Set Perms
 	for (int i = 0; i < n; i++)
 
 	{
@@ -220,7 +173,7 @@ void MaxwellSolver::buildPerm()
 				rz = (perms[index(i, j)] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
 			}
 
-			std::cout << rx << " " << ry << " " << rz << std::endl;
+			//std::cout << rx << " " << ry << " " << rz << std::endl;
 
 			coeffsPermX.push_back(Triplet(superI, superI, rx));
 			coeffsPermY.push_back(Triplet(superI, superI, ry));
@@ -246,68 +199,14 @@ void MaxwellSolver::buildPotCoeffs()
 
 		{
 			int superI = index(i, j);
+			insertCoeff(coeffsUx, superI, index(i, j), -1.0 / deltaX);
+			insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0 / deltaX);
 
+			insertCoeff(coeffsUy, superI, index(i, j), -1.0 / deltaY);
+			insertCoeff(coeffsUy, superI, index(i + n, j), 1.0 / deltaY);
+
+			insertCoeff(identity, superI, superI, 1.0);
 			/*
-			//Ux
-
-			if (superI % n != 0)
-
-			{
-				insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0*(0.5 / deltaX));
-			}
-				
-			else
-
-			{
-				insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0*(0.5 / deltaX));
-			}
-				
-				
-			insertCoeff(coeffsUx, superI, index(i, j), -1.0*(0.5 / deltaX));
-			//insertCoeff(coeffsUx, superI, index(i, j), -2.0*(0.5 / deltaY));
-			//Uy
-			if (superI != m - 1)
-
-			{
-				insertCoeff(coeffsUy, superI, index(i, j), -1.0*(0.5 / deltaY));
-			}
-				
-			else
-
-			{
-				insertCoeff(coeffsUy, superI, index(i, j), 1.0*(0.5 / deltaY));
-			}
-
-			
-			
-			//insertCoeff(coeffsUy, superI, index(i, j), -2.0*(0.5 / deltaY));
-			//Vx
-			if (superI % n != 0)
-
-			{
-				insertCoeff(coeffsUy, superI, index(i + n, j), 1.0*(0.5 / deltaY));
-				insertCoeff(coeffsVx, superI, index(i, j + 1), -1.0*(0.5 / deltaX));
-				insertCoeff(coeffsVy, superI, index(i, j + n), -1.0*(0.5 / deltaY));
-			}
-			
-			else
-
-			{
-				insertCoeff(coeffsUy, superI, index(i + n, j), 1.0*(0.5 / deltaY));
-				insertCoeff(coeffsVx, superI, index(i, j + 1), -1.0*(0.5 / deltaX));
-				insertCoeff(coeffsVy, superI, index(i, j + n), -1.0*(0.5 / deltaY));
-			}
-				
-				
-			insertCoeff(coeffsVx, superI, index(i, j), 1.0*(0.5 / deltaX));
-			//insertCoeff(coeffsVx, superI, index(i, j), -2.0*(0.5 / deltaX));
-			//Vy
-			
-			insertCoeff(coeffsVy, superI, index(i, j), 1.0*(0.5 / deltaY));
-			//insertCoeff(coeffsVy, superI, index(i, j), -2.0*(0.5 / deltaY));
-			//Identity Matrix
-			*/
-
 			//Ux
 			insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0*(1.0 / deltaX));
 			insertCoeff(coeffsUx, superI, index(i - 1, j), -1.0*(1.0 / deltaX));
@@ -333,31 +232,6 @@ void MaxwellSolver::buildPotCoeffs()
 			//Identity Matrix
 			insertCoeff(identity, superI, superI, 1.0);
 			insertCoeff(identity, superI, superI, 1.0);
-			/* //COPY
-			//Ux
-			insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0*(1.0 / deltaX));
-			insertCoeff(coeffsUx, superI, index(i, j), -1.0*(1.0 / deltaX));
-			//Uy
-			insertCoeff(coeffsUy, superI, index(i + (m / 2) + 1, j), 1.0*(1.0 / deltaY));
-			double l;
-			if (superI == m - 1)
-
-			{
-				l = 1.0;
-			}
-			else
-			{
-				l = -1.0;
-			}
-			insertCoeff(coeffsUy, superI, index(i, j), l*(1.0 / deltaY));
-			//Vx
-			insertCoeff(coeffsVx, superI, index(i, j + 1), -1.0*(1.0 / deltaX));
-			insertCoeff(coeffsVx, superI, index(i, j), 1.0*(1.0 / deltaX));
-			//Vy
-			insertCoeff(coeffsVy, superI, index(i, j + (m / 2) + 1), -1.0*(1.0 / deltaY));
-			insertCoeff(coeffsVy, superI, index(i, j), 1.0*(1.0 / deltaY));
-			//Identity Matrix
-			insertCoeff(identity, superI, superI, 1.0);
 			*/
 		}
 	}
@@ -376,8 +250,12 @@ void MaxwellSolver::buildMatrix()
 	//Boundary
 	Ux.setFromTriplets(coeffsUx.begin(), coeffsUx.end());
 	Uy.setFromTriplets(coeffsUy.begin(), coeffsUy.end());
-	Vx.setFromTriplets(coeffsVx.begin(), coeffsVx.end());
-	Vy.setFromTriplets(coeffsVy.begin(), coeffsVy.end());
+	//Vx.setFromTriplets(coeffsVx.begin(), coeffsVx.end());
+	//Vy.setFromTriplets(coeffsVy.begin(), coeffsVy.end());
+
+	Vx = -Ux.transpose();
+	Vy = -Uy.transpose();
+
 	//Permativities
 	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
 	ery.setFromTriplets(coeffsPermY.begin(), coeffsPermY.end());
@@ -416,7 +294,7 @@ int MaxwellSolver::findModes()
 	Clock c;
 	Spectra::SparseGenMatProd<double> op(matrix);
 	int nev = numEigs;
-	Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2*nev + m/2);
+	Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2*nev + m/10);
 	eigs.init();
 	int nconv = eigs.compute();
 
