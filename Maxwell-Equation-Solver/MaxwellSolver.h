@@ -7,7 +7,7 @@ class MaxwellSolver
 {
 public:
 
-	MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs); //Size of one side of grid
+	MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs, int convNum); //Size of one side of grid
 
 	typedef Eigen::Triplet<double> Triplet;
 	typedef Eigen::SparseMatrix<double> SparseM;
@@ -21,9 +21,13 @@ public:
 	void buildPotCoeffs();
 	void buildMatrix();
 	int findModes();
+	void findField();
+	void shiftInvert(SparseM &inputMatrix, SparseM &outputMatrix, double sigma);
 
 	Eigen::VectorXd eigenVals;
 	Eigen::MatrixXd eigenVectors;
+	SparseM fieldComponents;
+	Eigen::MatrixXd Ex, Ey, Ez, Hx, Hy, Hz;
 
 private:
 
@@ -40,8 +44,10 @@ private:
 	std::vector<Triplet> coeffsPermZInverse;
 	std::vector<Triplet> identity;
 
-	SparseM matrix;
+	SparseM matrix, Ux, Uy;
 	
-	int n, m, numEigs;
+	
+
+	int n, m, numEigs, nConv;
 	double k, deltaX, deltaY, perm;
 };

@@ -1,7 +1,7 @@
 #include "MaxwellSolver.h"
 
-MaxwellSolver::MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs) 
-	: n(number), m(number*number), k(kFreq), matrix(2 * (number*number), 2 * (number*number)), perm(permativity), numEigs(eigs)
+MaxwellSolver::MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs, int convNum) 
+	: n(number), m(number*number), k(kFreq), matrix(2 * (number*number), 2 * (number*number)), perm(permativity), numEigs(eigs), nConv(convNum)
 
 {
 	deltaX = length / (double)number;
@@ -107,7 +107,7 @@ void MaxwellSolver::buildGeometry(double scale, std::string filename)
 	for (int i = 0; i < width*height; i++)
 
 	{
-		double val = scale*(double)(data[3 * (i)] + data[3 * (i)+1] + data[3 * (i)+2]) / (3.0*255) + 1.0;
+		double val = (scale - 1.0)*(double)(data[3 * (i)] + data[3 * (i)+1] + data[3 * (i)+2]) / (3.0*255) + 1.0;
 		perms.push_back(val);
 		//if (val != 1.0) std::cout << val << std::endl;
 	}
@@ -244,9 +244,12 @@ void MaxwellSolver::buildMatrix()
 	std::cout << "Building matricies..." << std::endl;
 	Clock c;
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
-			Ux(m, m), Uy(m, m), Vx(m, m), Vy(m, m), erx(m, m),
+			Vx(m, m), Vy(m, m), erx(m, m),
 			ery(m, m), erz(m, m), erxI(m, m), eryI(m, m),
 			erzI(m, m), I(m, m);
+
+	Ux.resize(m, m);
+	Uy.resize(m, m);
 	//Boundary
 	Ux.setFromTriplets(coeffsUx.begin(), coeffsUx.end());
 	Uy.setFromTriplets(coeffsUy.begin(), coeffsUy.end());
@@ -287,6 +290,21 @@ void MaxwellSolver::buildMatrix()
 	matrix.makeCompressed();
 }
 
+void MaxwellSolver::shiftInvert(SparseM &inputMatrix, SparseM &outputMatrix, double sigma)
+
+{
+	std::cout << "Shifting and Inverting..." << std::endl;
+	Clock c;
+	SparseM newMat(m, m), I(m, m);
+	newMat = (inputMatrix - sigma * I);
+
+	Eigen::SimplicialCholesky<SparseM> chol(newMat);
+	outputMatrix = chol.solve(I);
+
+
+	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+}
+
 int MaxwellSolver::findModes()
 
 {
@@ -294,7 +312,17 @@ int MaxwellSolver::findModes()
 	Clock c;
 	Spectra::SparseGenMatProd<double> op(matrix);
 	int nev = numEigs;
-	Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2*nev + m/10);
+	double sigma = 2*PI*k * sqrt(perm);
+	//std::cout << sigma << std::endl;
+	//sigma = k*deltaX*(double)n;
+	//sigma = k * 1.4;
+	//sigma = 0;
+	//SparseM outputMat(m, m);
+	//shiftInvert(matrix, outputMat, sigma);
+	Clock c2;
+	//Spectra::SparseGenRealShiftSolve<double> op(matrix);
+	//Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 2, sigma);
+	Spectra::GenEigsSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2 * nev + nConv);
 	eigs.init();
 	int nconv = eigs.compute();
 
@@ -325,5 +353,64 @@ int MaxwellSolver::findModes()
 	//std::cout << std::setprecision(14) << eigenVals << std::endl;
 
 	//std::cout << eigenVectors.col(0).size() << std::endl;
+}
+
+void MaxwellSolver::findField()
+
+{
+	Clock c;
+	std::cout << "Finding remaining field components..." << std::endl;
+	int inner, outer;
+	inner = eigenVectors.innerSize();
+	outer = eigenVectors.outerSize();
+
+	Ex.resize(inner / 2, outer);
+	Ey.resize(inner / 2, outer);
+	Ez.resize(inner / 2, outer);
+
+	Hx.resize(inner / 2, outer);
+	Hy.resize(inner / 2, outer);
+	Hz.resize(inner / 2, outer);
+
+	for (int i = 0; i < eigenVectors.outerSize(); i++)
+
+	{
+		Ex.col(i) = eigenVectors.col(i).head(eigenVectors.innerSize() / 2);
+		Ey.col(i) = eigenVectors.col(i).tail(eigenVectors.innerSize() / 2);
+	}
+
+	SparseM erzI(m, m), erx(m, m), ery(m, m), Vx(m, m), Vy(m, m);
 	
+	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
+	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
+	ery.setFromTriplets(coeffsPermY.begin(), coeffsPermY.end());
+
+	Vx = -Ux.transpose();
+	Vy = -Uy.transpose();
+
+	for (int i = 0; i < Ex.outerSize(); i++)
+
+	{
+		Hz.col(i) = (1 / k)*(-Uy * Ex.col(i) + Ux * Ey.col(i));
+	}
+
+	for (int i = 0; i < Ex.outerSize(); i++)
+
+	{
+		Hx.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(Vx*Hz.col(i) - k*ery*Ey.col(i));
+	}
+
+	for (int i = 0; i < Ex.outerSize(); i++)
+
+	{
+		Hy.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(k*erx*Ex.col(i) + Vy*Hz.col(i));
+	}
+
+	for (int i = 0; i < Ex.outerSize(); i++)
+
+	{
+		Ez.col(i) = (1 / k)*erzI*(-Vy*Hx.col(i) + Vx*Hy.col(i));
+	}
+
+	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 }

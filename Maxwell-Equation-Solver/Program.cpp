@@ -1,7 +1,8 @@
 #include "Program.h"
 //General program class
-Program::Program(int width, int height, int iters, int eigVals, double kVal, double length, double permativity): 
-	w(width), h(height), window(sf::VideoMode(width,height), "Maxwell Equation Solver"), its(iters), eigs(eigVals), k(kVal), l(length), perm(permativity)
+Program::Program(int width, int height, int iters, int eigVals, double kVal, double length, double permativity, int convNum, std::string f): 
+	w(width), h(height), window(sf::VideoMode(width,height), "Maxwell Equation Solver"), its(iters), eigs(eigVals), k(kVal), l(length), perm(permativity),
+	conv(convNum), displayField(0), modeSet(0), filename(f)
 
 {
 	points.setPrimitiveType(sf::Points);
@@ -25,8 +26,6 @@ int Program::mainLoop()
 		return EXIT_FAILURE;
 	}
 
-	int mode = 0;
-
 	while (window.isOpen())
 
 	{
@@ -38,15 +37,16 @@ int Program::mainLoop()
 			{
 				window.close();
 			}
+
+			keyCallBack(events);
 		}
 
-		if (sfClock.getElapsedTime().asSeconds() > 0.5)
+		if (modeSet != 1)
 
 		{
-			setMode(mode % eigs);
-			std::cout << "Current Mode: " << (mode % eigs) + 1 << std::endl;
-			mode++;
-			sfClock.restart();
+			setMode(mode);
+			std::cout << "Current Mode: " << (mode)+1 << std::endl << "=====================" << std::endl;
+			modeSet = 1;
 		}
 
 		window.clear(sf::Color::White);
@@ -72,12 +72,10 @@ int Program::calculate(int size)
 {
 	Clock c;
 
-	int calcSize = size % 4 + size;
-
 	//double k = 1000000.0;
 
-	MaxwellSolver max(calcSize, k, l, perm, eigs);
-	max.buildGeometry(1.1, "Fibre40.bmp");
+	MaxwellSolver max(size, k, l, perm, eigs, conv);
+	max.buildGeometry(perm, filename);
 	max.buildPerm();
 	max.buildPotCoeffs();
 	max.buildMatrix();
@@ -86,9 +84,17 @@ int Program::calculate(int size)
 	if (max.findModes() == EXIT_SUCCESS)
 
 	{
-		vectors = max.eigenVectors;
+		max.findField();
+		
+		fieldComponents.push_back(max.Hx);
+		fieldComponents.push_back(max.Hy);
+		fieldComponents.push_back(max.Hz);
+		fieldComponents.push_back(max.Ex);
+		fieldComponents.push_back(max.Ey);
+		fieldComponents.push_back(max.Ez);
+
 		eigenValues = max.eigenVals;
-		std::cout << "=====================" << std::endl << "All done in " << c.elapsed() << " ms" << std::endl;
+		std::cout << "=====================" << std::endl << "All done in " << c.elapsed() << " ms" << std::endl << "=====================" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -100,27 +106,79 @@ int Program::calculate(int size)
 	}
 	
 	
+	
 }
 
 void Program::setMode(int mode)
 
 {
 	points.clear();
-	Eigen::VectorXd vec = vectors.col(mode);
-	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
-	std::vector<double> values;
-	int step = 1;
-	for (int i = 0; i < sqrt(vec.size() / 2); i+=step)
+	Eigen::VectorXd vec;
+
+	switch (displayField)
 
 	{
-		for (int j = 0; j < sqrt(vec.size() / 2); j+=step)
+		case FIELD_EX: 
+		
+		{
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Ex Component" << std::endl;
+			break;
+		}
+		
+		case FIELD_EY:
 
 		{
-			double num = vec[i + j*(sqrt(vec.size() / 2))];
-				//std::cout << num << std::endl;
-			values.push_back(num);
-
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Ey Component" << std::endl;
+			break;
 		}
+
+		case FIELD_EZ:
+
+		{
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Ez Component" << std::endl;
+			break;
+		}
+
+		case FIELD_HX:
+
+		{
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Hx Component" << std::endl;
+			break;
+		}
+
+		case FIELD_HY:
+
+		{
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Hy Component" << std::endl;
+			break;
+		}
+
+		case FIELD_HZ:
+
+		{
+			vec = fieldComponents[displayField].col(mode);
+			std::cout << "Displaying Hz Component" << std::endl;
+			break;
+		}
+		
+	}
+
+	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
+	std::cout << "neff: " << sqrt(abs(eigenValues[mode]))/k << std::endl;
+	std::vector<double> values;
+	int step = 1;
+	for (int i = 0; i < vec.size(); i+=step)
+
+	{
+		
+		double num = vec[i];
+				//std::cout << num << std::endl;
+		values.push_back(num);
 	}
 
 	std::vector<double> normal;
@@ -133,7 +191,7 @@ void Program::setMode(int mode)
 		for (int j = 0; j < w; j++)
 
 		{
-			double val = getValue(normal, sqrt(vec.size() / 2) / step, i, j, w, w);
+			double val = getValue(normal, sqrt(vec.size()) / step, i, j, w, w);
 			double colorR, colorB, colorG;
 			if (val < 0.0)
 
@@ -153,7 +211,7 @@ void Program::setMode(int mode)
 
 			//std::cout << val << std::endl;
 			//std::cout << colorR << std::endl;
-			points.append(sf::Vertex(sf::Vector2f(j, w - i), sf::Color(colorR, colorG, colorB)));
+			points.append(sf::Vertex(sf::Vector2f(i,j), sf::Color(colorR, colorG, colorB)));
 		}
 	}
 }
@@ -259,4 +317,53 @@ void Program::normalise(std::vector<double> &vec, std::vector<double> &normalise
 
 		normalisedVals.push_back(val);
 	}
+}
+
+void Program::keyCallBack(sf::Event events)
+
+{
+	if (events.type == sf::Event::EventType::KeyPressed)
+
+	{
+		switch (events.key.code)
+
+		{
+
+			case sf::Keyboard::Left:
+
+			{
+				displayField--;
+				if (displayField < 0) displayField = 5;
+				modeSet = 0;
+				break;
+			}
+
+			case sf::Keyboard::Right:
+
+			{
+				displayField++;
+				if (displayField > 5) displayField = 0;
+				modeSet = 0;
+				break;
+			}
+
+			case sf::Keyboard::Up:
+
+			{
+				mode++;
+				if (mode > eigs - 1) mode = 0;
+				modeSet = 0;
+				break;
+			}
+
+			case sf::Keyboard::Down:
+
+			{
+				mode--;
+				if (mode < 0) mode = eigs - 1;
+				modeSet = 0;
+				break;
+			}
+		}
+	}	
 }
