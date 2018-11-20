@@ -28,6 +28,7 @@ public:
 	Eigen::MatrixXd eigenVectors;
 	SparseM fieldComponents;
 	Eigen::MatrixXd Ex, Ey, Ez, Hx, Hy, Hz;
+	std::vector<double> geometry;
 
 private:
 

@@ -13,6 +13,7 @@ public:
 	void draw(); //Draw Call
 	int calculate(int size); //Calculate
 	void setMode(int mode);
+	void writeFields();
 	void normalise(std::vector<double> &vec, std::vector<double> &normalisedVals);
 	void keyCallBack(sf::Event events);
 	double interpolate(double d1, double d2, double w);
@@ -21,10 +22,10 @@ public:
 private:
 	
 	sf::RenderWindow window; //Sfml window
-	sf::VertexArray points; //Array of points
+	sf::VertexArray points, geometry; //Array of points
 	std::string filename;
-	int w, h, its, eigs, conv, displayField, mode, modeSet; //Width, height
-	double k, l, perm;
+	int w, h, its, eigs, conv, displayField, mode, modeSet, gOn; //Width, height
+	double k, l, perm, ExMax;
 	std::vector<Eigen::MatrixXd> fieldComponents;
 
 	Eigen::VectorXd eigenValues;

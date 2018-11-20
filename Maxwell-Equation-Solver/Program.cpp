@@ -2,7 +2,7 @@
 //General program class
 Program::Program(int width, int height, int iters, int eigVals, double kVal, double length, double permativity, int convNum, std::string f): 
 	w(width), h(height), window(sf::VideoMode(width,height), "Maxwell Equation Solver"), its(iters), eigs(eigVals), k(kVal), l(length), perm(permativity),
-	conv(convNum), displayField(0), modeSet(0), filename(f)
+	conv(convNum), displayField(3), modeSet(0), filename(f)
 
 {
 	points.setPrimitiveType(sf::Points);
@@ -65,6 +65,7 @@ void Program::draw()
 
 {
 	window.draw(points);
+	if (gOn == 1) window.draw(geometry);
 }
 
 int Program::calculate(int size)
@@ -76,6 +77,19 @@ int Program::calculate(int size)
 
 	MaxwellSolver max(size, k, l, perm, eigs, conv);
 	max.buildGeometry(perm, filename);
+
+	for (int i = 0; i < w; i++)
+
+	{
+		for (int j = 0; j < w; j++)
+
+		{
+			double val = getValue(max.geometry, sqrt(max.geometry.size()), i, j, w, w);
+			geometry.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(val, val, val, 200)));
+		}
+	}
+	gOn = 1;
+
 	max.buildPerm();
 	max.buildPotCoeffs();
 	max.buildMatrix();
@@ -171,13 +185,16 @@ void Program::setMode(int mode)
 	std::cout << "Eigen Value: " << eigenValues[mode] << std::endl;
 	std::cout << "neff: " << sqrt(abs(eigenValues[mode]))/k << std::endl;
 	std::vector<double> values;
-	int step = 1;
-	for (int i = 0; i < vec.size(); i+=step)
+	for (int i = 0; i < vec.size(); i++)
 
 	{
 		
 		double num = vec[i];
-				//std::cout << num << std::endl;
+		//re = num.real();
+		//im = num.imag();
+
+
+		//std::cout << num << std::endl;
 		values.push_back(num);
 	}
 
@@ -191,7 +208,7 @@ void Program::setMode(int mode)
 		for (int j = 0; j < w; j++)
 
 		{
-			double val = getValue(normal, sqrt(vec.size()) / step, i, j, w, w);
+			double val = getValue(normal, sqrt(vec.size()), i, j, w, w);
 			double colorR, colorB, colorG;
 			if (val < 0.0)
 
@@ -219,16 +236,16 @@ void Program::setMode(int mode)
 double Program::interpolate(double d1, double d2, double w)
 
 {
-	//return d1 + w * (d2 - d1);
+	return d1 + w * (d2 - d1);
 	//double w2 = (1 - cos(w*PI)) / 2.0;
 	//return (d1 * (1 - w2) + d2 * w2);
-	///*
+	/*
 	double a = 2 * d1 - 2 * d2;
 	double b = -3 * d1 + 3 * d2;
 	double d = d1;
 
 	return w*w*w*a + b * w*w + d;
-	//*/
+	*/
 }
 
 double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x, int y, int w, int h)
@@ -242,51 +259,52 @@ double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x,
 	int yVal0 = (int)yVal;
 	int yVal1 = yVal0 + 1;
 
-	double sX = pow(xVal - double(xVal0),1);
-	double sY = pow(yVal - double(yVal0),1);
-	/*
-	double s00 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal0, 2));
-	double s01 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal1, 2));
-	double s10 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal0, 2));
-	double s11 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal1, 2));
+double sX = pow(xVal - double(xVal0), 1);
+double sY = pow(yVal - double(yVal0), 1);
+/*
+double s00 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal0, 2));
+double s01 = sqrt(pow(xVal - (double)xVal0, 2) + pow(yVal - (double)yVal1, 2));
+double s10 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal0, 2));
+double s11 = sqrt(pow(xVal - (double)xVal1, 2) + pow(yVal - (double)yVal1, 2));
 
-	double v00 = s00 * gridPoints[xVal0 + yVal0 * sideLength];
-	double v01 = s01 * gridPoints[xVal0 + yVal1 * sideLength];
-	double v10 = s10 * gridPoints[xVal1+ yVal0 * sideLength];
-	double v11 = s11 * gridPoints[xVal1 + yVal1 * sideLength];
+double v00 = s00 * gridPoints[xVal0 + yVal0 * sideLength];
+double v01 = s01 * gridPoints[xVal0 + yVal1 * sideLength];
+double v10 = s10 * gridPoints[xVal1+ yVal0 * sideLength];
+double v11 = s11 * gridPoints[xVal1 + yVal1 * sideLength];
 
-	return (v00 + v01 + v10 + v11) / 4.0;
-	*/
-	double ix0, ix1, n0, n1;
-	n0 = gridPoints[xVal0 + yVal0 * sideLength];
-	n1 = gridPoints[xVal1 + yVal0 * sideLength];
+return (v00 + v01 + v10 + v11) / 4.0;
+*/
+double ix0, ix1, n0, n1;
+n0 = gridPoints[xVal0 + yVal0 * sideLength];
+n1 = gridPoints[xVal1 + yVal0 * sideLength];
 
-	ix0 = interpolate(n0, n1, sX);
+ix0 = interpolate(n0, n1, sX);
 
-	n0 = gridPoints[xVal0 + yVal1 * sideLength];
-	n1 = gridPoints[xVal1 + yVal1 * sideLength];
+n0 = gridPoints[xVal0 + yVal1 * sideLength];
+n1 = gridPoints[xVal1 + yVal1 * sideLength];
 
-	ix1 = interpolate(n0, n1, sX);
-	/*
-	if (xVal == xVal0 && yVal == yVal0)
+ix1 = interpolate(n0, n1, sX);
+/*
+if (xVal == xVal0 && yVal == yVal0)
 
-	{
-		return gridPoints[xVal0 + yVal0 * sideLength];
-	}
+{
+	return gridPoints[xVal0 + yVal0 * sideLength];
+}
 
-	else
+else
 
-	{
-		return 0.0;
-	}
-	*/
-	return interpolate(ix0, ix1, sY);
+{
+	return 0.0;
+}
+*/
+return interpolate(ix0, ix1, sY);
 }
 
 void Program::normalise(std::vector<double> &vec, std::vector<double> &normalisedVals)
 
 {
-	double max = -1.0;
+	double max = -10.0;
+	double min = 1.0;
 
 	for (int i = 0; i < vec.size(); i++)
 
@@ -301,21 +319,62 @@ void Program::normalise(std::vector<double> &vec, std::vector<double> &normalise
 	for (int i = 0; i < vec.size(); i++)
 
 	{
-		double val = vec[i] / max;
+		if (abs(vec[i]) < min)
+
+		{
+			min = abs(vec[i]);
+		}
+	}
+
+	for (int i = 0; i < vec.size(); i++)
+
+	{
+		double val = 1 * vec[i] / max;
 
 		if (val > 1.0)
 
 		{
-			val = 1.0;
+			//val = 1.0;
 		}
 
 		else if (val < -1.0)
 
 		{
-			val = -1.0;
+			//val = -1.0;
 		}
-
 		normalisedVals.push_back(val);
+	}
+
+}
+
+void Program::writeFields()
+
+{
+	std::ofstream file;
+	std::stringstream os;
+	std::string s = "Field_Components_Mode_";
+	std::string end = ".dat";
+	os << s << mode+1 << end;
+	file.open(os.str());
+
+	int size = sqrt(fieldComponents[0].col(0).size());
+
+	file << "x,y,Hx,Hy,Hz,Ex,Ey,Ez" << std::endl;
+
+	for (int i = 0; i < size; i++)
+
+	{
+		for (int j = 0; j < size; j++)
+
+		{
+			file << i << "," << j << ","
+				<< fieldComponents[0].col(mode)[i + size * j] << ","
+				<< fieldComponents[1].col(mode)[i + size * j] << ","
+				<< fieldComponents[2].col(mode)[i + size * j] << ","
+				<< fieldComponents[3].col(mode)[i + size * j] << ","
+				<< fieldComponents[4].col(mode)[i + size * j] << ","
+				<< fieldComponents[5].col(mode)[i + size * j] << std::endl;
+		}
 	}
 }
 
@@ -363,6 +422,19 @@ void Program::keyCallBack(sf::Event events)
 				if (mode < 0) mode = eigs - 1;
 				modeSet = 0;
 				break;
+			}
+
+			case sf::Keyboard::Space:
+
+			{
+				if (gOn == 1) gOn = 0;
+				else gOn = 1;
+			}
+
+			case sf::Keyboard::Enter:
+
+			{
+				writeFields();
 			}
 		}
 	}	
