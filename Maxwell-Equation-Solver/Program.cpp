@@ -88,7 +88,7 @@ int Program::calculate(int size)
 			geometry.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(val, val, val, 200)));
 		}
 	}
-	gOn = 1;
+	gOn = 0;
 
 	max.buildPerm();
 	max.buildPotCoeffs();
@@ -434,6 +434,7 @@ void Program::keyCallBack(sf::Event events)
 			case sf::Keyboard::Enter:
 
 			{
+				std::cout << "Outputing Current Fields..." << std::endl;
 				writeFields();
 			}
 		}
