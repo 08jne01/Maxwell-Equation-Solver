@@ -1,6 +1,7 @@
 #pragma once
 #include "Header.h"
 #include "Clock.h"
+#include "Vector3.h"
 
 class MaxwellSolver
 
@@ -17,12 +18,12 @@ public:
 	void condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ);
 	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val);
 	void buildGeometry(double scale, std::string filename);
+	Vector3 getPermComponent(int i, int j);
 	void buildPerm();
 	void buildPotCoeffs();
 	void buildMatrix();
 	int findModes();
 	void findField();
-	void shiftInvert(SparseM &inputMatrix, SparseM &outputMatrix, double sigma);
 
 	Eigen::VectorXd eigenVals;
 	Eigen::MatrixXd eigenVectors;
@@ -35,13 +36,8 @@ private:
 	std::vector<double> perms;
 	std::vector<Triplet> coeffsUx;
 	std::vector<Triplet> coeffsUy;
-	std::vector<Triplet> coeffsVx;
-	std::vector<Triplet> coeffsVy;
 	std::vector<Triplet> coeffsPermX;
 	std::vector<Triplet> coeffsPermY;
-	std::vector<Triplet> coeffsPermZ;
-	std::vector<Triplet> coeffsPermXInverse;
-	std::vector<Triplet> coeffsPermYInverse;
 	std::vector<Triplet> coeffsPermZInverse;
 	std::vector<Triplet> identity;
 

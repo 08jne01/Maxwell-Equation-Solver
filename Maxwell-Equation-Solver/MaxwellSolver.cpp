@@ -1,11 +1,12 @@
 #include "MaxwellSolver.h"
 
 MaxwellSolver::MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs, int convNum) 
-	: n(number), m(number*number), k(kFreq), matrix(2 * (number*number), 2 * (number*number)), perm(permativity), numEigs(eigs), nConv(convNum)
+	: n(number), m(number*number), k(kFreq), matrix(2 * (number*number), 2 * (number*number)), perm(permativity*permativity), numEigs(eigs), nConv(convNum)
 
 {
-	deltaX = length / (double)number;
-	deltaY = length / (double)number;
+	deltaX = (double)length;
+	deltaY = (double)length;
+	std::cout << "Delta x, y: "  << deltaX << " " << deltaY << std::endl;
 	//deltaX = 1.0;
 	//deltaY = 1.0;
 }
@@ -51,8 +52,8 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	std::vector<Triplet> v4;
 	//Parallised
 	std::thread tr1([&]() {condenseThread(m1, v1, 0, 0);});
-	std::thread tr2([&]() {condenseThread(m2, v2, 0, m); });
-	std::thread tr3([&]() {condenseThread(m3, v3, m, 0); });
+	std::thread tr2([&]() {condenseThread(m2, v2, m, 0); });
+	std::thread tr3([&]() {condenseThread(m3, v3, 0, m); });
 	std::thread tr4([&]() {condenseThread(m4, v4, m, m); });
 	
 	tr1.join();
@@ -111,85 +112,92 @@ void MaxwellSolver::buildGeometry(double scale, std::string filename)
 	{
 		double val1 = (double)(data[3 * (i)] + data[3 * (i) + 1] + data[3 * (i) + 2]) / (3.0);
 		double val2 = (scale - 1.0)*val1/255.0 + 1.0;
-		if (val2 < 1.0) std::cout << val2 << std::endl;
+		//if (val2 < 1.0) std::cout << val2 << std::endl;
 		geometry.push_back(val1);
-		perms.push_back(val2);
-		//if (val != 1.0) std::cout << val << std::endl;
+		perms.push_back(val2*val2);
+		//std::cout << val2 << std::endl;
+		//if (val2 != 1.0) std::cout << val2 << std::endl;
 	}
 	//Need to make a check for sizes!
 	delete data;
 	std::cout << filename << " geometry imported!" << std::endl;
 }
 
+Vector3 MaxwellSolver::getPermComponent(int i, int j)
+
+{
+	double rx, ry, rz;
+	int superI = index(i, j);
+
+	if (i == 0 || j == 0 || i == n || j == n)
+
+	{
+		rx = perms[superI];
+		ry = perms[superI];
+		rz = perms[superI];
+	}
+
+	else
+
+	{
+		//rx = (perms[superI] + perms[index(i, j - 1)]) / 2;
+		//ry = (perms[superI] + perms[index(i - 1, j)]) / 2;
+		//rz = (perms[superI] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
+		rx = perms[superI];
+		ry = perms[superI];
+		rz = perms[superI];
+	}
+
+	return Vector3(rx, ry, rz);
+}
+
 void MaxwellSolver::buildPerm()
 
 {
-
+	/*
 	double val = 1.0;
 	//Default Case
-	if (perms.size() <= 1)
+	//Set Perms
+	
+	for (int j = 0; j < n; j++)
 
 	{
 		for (int i = 0; i < n; i++)
 
 		{
-			for (int j = 0; j < n; j++)
+			int superI = index(i, j);
+			Vector3 permVec(1.0, 1.0, 1.0);
+
+			if (i > 59 && i < 99 && j > 59 && j < 99)
 
 			{
-				if (i > n / 4 && i < 3 * n / 4 && j > n / 4 && j < 3 * n / 4)
-
-				{
-					//perms.push_back(1.00000001);
-					perms.push_back(perm);
-				}
-
-				else
-
-				{
-					perms.push_back(1.0);
-				}
+				permVec = Vector3(perm, perm, perm);
 			}
+
+			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
+			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
+
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
 		}
 	}
-	//Set Perms
+	
+	*/
+
 	for (int i = 0; i < n; i++)
 
 	{
 		for (int j = 0; j < n; j++)
 
 		{
-			double rx, ry, rz;
-
 			int superI = index(i, j);
-			
-			if (i == 0 || j == 0 || i == n || j == n)
-
-			{
-				rx = perms[index(i, j)];
-				ry = perms[index(i, j)];
-				rz = perms[index(i, j)];
-			}
-
-			else
-
-			{
-				//rx = (perms[index(i, j)] + perms[index(i,j - 1)]) / 2;
-				//ry = (perms[index(i, j)] + perms[index(i - 1, j)]) / 2;
-				//rz = (perms[index(i, j)] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
-				rx = perms[index(i, j)];
-				ry = perms[index(i, j)];
-				rz = perms[index(i, j)];
-			}
+			Vector3 permVec = getPermComponent(i, j);
 
 			//std::cout << rx << " " << ry << " " << rz << std::endl;
 
-			coeffsPermX.push_back(Triplet(superI, superI, rx));
-			coeffsPermY.push_back(Triplet(superI, superI, ry));
-			coeffsPermZ.push_back(Triplet(superI, superI, rz));
+			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
+			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
 
-			coeffsPermXInverse.push_back(Triplet(superI, superI, 1.0 / rx));
-			coeffsPermYInverse.push_back(Triplet(superI, superI, 1.0 / ry));
-			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / rz));
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
 		}
 		
 	}
@@ -206,41 +214,25 @@ void MaxwellSolver::buildPotCoeffs()
 		for (int i = 0; i < n; i++)
 
 		{
+			
 			int superI = index(i, j);
-			insertCoeff(coeffsUx, superI, index(i, j), -1.0 / deltaX);
-			insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0 / deltaX);
-
-			insertCoeff(coeffsUy, superI, index(i, j), -1.0 / deltaY);
-			insertCoeff(coeffsUy, superI, index(i + n, j), 1.0 / deltaY);
-
-			insertCoeff(identity, superI, superI, 1.0);
 			/*
-			//Ux
-			insertCoeff(coeffsUx, superI, index(i + 1, j), 1.0*(1.0 / deltaX));
-			insertCoeff(coeffsUx, superI, index(i - 1, j), -1.0*(1.0 / deltaX));
-			//Uy
-			insertCoeff(coeffsUy, superI, index(i, j + 1), 1.0*(1.0 / deltaY));
-			double l;
-			if (superI == m - 1)
+			insertCoeff(coeffsUx, superI, index(i, j),  (-1.0) / deltaX);
+			insertCoeff(coeffsUx, superI, index(i + 1, j),  + (1.0) / deltaX);
 
-			{
-				l = 1.0;
-			}
-			else
-			{
-				l = -1.0;
-			}
-			insertCoeff(coeffsUy, superI, index(i, j - 1), l*(1.0 / deltaY));
-			//Vx
-			insertCoeff(coeffsVx, superI, index(i + 1, j), -1.0*(1.0 / deltaX));
-			insertCoeff(coeffsVx, superI, index(i - 1, j), 1.0*(1.0 / deltaX));
-			//Vy
-			insertCoeff(coeffsVy, superI, index(i, j + 1), -1.0*(1.0 / deltaY));
-			insertCoeff(coeffsVy, superI, index(i, j - 1), 1.0*(1.0 / deltaY));
-			//Identity Matrix
-			insertCoeff(identity, superI, superI, 1.0);
-			insertCoeff(identity, superI, superI, 1.0);
+			insertCoeff(coeffsUy, superI, index(i, j),  (-1.0) / deltaY);
+			insertCoeff(coeffsUy, superI, index(i + n, j),  + (1.0) / deltaY);
 			*/
+
+			insertCoeff(coeffsUx, superI, superI, -1.0);
+			insertCoeff(coeffsUx, superI + 1, superI, 1.0);
+
+			insertCoeff(coeffsUy, superI, superI, -1.0);
+			insertCoeff(coeffsUy, superI + n, superI, 1.0);
+
+			insertCoeff(identity, superI, superI, 1.0);
+			
+			
 		}
 	}
 	std::cout << "Done in "  << c.elapsed() << " ms" << std::endl;
@@ -253,27 +245,28 @@ void MaxwellSolver::buildMatrix()
 	Clock c;
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
 			Vx(m, m), Vy(m, m), erx(m, m),
-			ery(m, m), erz(m, m), erxI(m, m), eryI(m, m),
-			erzI(m, m), I(m, m);
+			ery(m, m), erzI(m, m), I(m, m);
 
 	Ux.resize(m, m);
 	Uy.resize(m, m);
 	//Boundary
 	Ux.setFromTriplets(coeffsUx.begin(), coeffsUx.end());
 	Uy.setFromTriplets(coeffsUy.begin(), coeffsUy.end());
-	//Vx.setFromTriplets(coeffsVx.begin(), coeffsVx.end());
-	//Vy.setFromTriplets(coeffsVy.begin(), coeffsVy.end());
 
-	Vx = -Ux.transpose();
-	Vy = -Uy.transpose();
+	SparseM Ux_temp = Ux / deltaX;
+	SparseM Uy_temp = Uy / deltaY;
+
+	Ux = Ux_temp;
+	Uy = Uy_temp;
+
+
+	Vx = -Ux_temp.transpose();
+	Vy = -Uy_temp.transpose();
 
 	//Permativities
 	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
 	ery.setFromTriplets(coeffsPermY.begin(), coeffsPermY.end());
-	erz.setFromTriplets(coeffsPermZ.begin(), coeffsPermZ.end());
 	//Inverse Permativities
-	erxI.setFromTriplets(coeffsPermXInverse.begin(), coeffsPermXInverse.end());
-	eryI.setFromTriplets(coeffsPermYInverse.begin(), coeffsPermYInverse.end());
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
 	I.setFromTriplets(identity.begin(), identity.end());
@@ -284,33 +277,18 @@ void MaxwellSolver::buildMatrix()
 	Pxx = -kSqrI * Ux*erzI*Vy*Vx*Uy + (kSqr*I + Ux * erzI*Vx)*(erx + kSqrI * Vy*Uy);
 	Pyy = -kSqrI * Uy*erzI*Vx*Vy*Ux + (kSqr*I + Uy * erzI*Vy)*(ery + kSqrI * Vx*Ux);
 	Pxy = Ux * erzI*Vy*(ery + kSqrI * Vx*Ux) - kSqrI * (kSqr*I + Ux * erzI*Vx)*Vy*Ux;
-	Pyx = Uy * erzI*Vx*(erx + kSqrI * Vy*Uy) - kSqrI * (kSqr*I + Uy * erzI*Vy)*Vx*Uy;
+	Pyx = Uy * erzI*Vx*(erx + kSqrI * Vy*Uy) - kSqrI * (kSqr*I + Uy * erzI*Vy)*Vx*Uy; //erx - > ery in phils code
 
-	Pxx.makeCompressed();
-	Pyy.makeCompressed();
-	Pxy.makeCompressed();
-	Pyx.makeCompressed();
+	//Pxx.prune(deltaX / k);
+	//Pyy.prune(deltaX / k);
+	//Pxy.prune(deltaX / k);
+	//Pyx.prune(deltaX / k);
 	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 
 	condense(Pxx, Pxy, Pyx, Pyy, matrix);
 
-	matrix.pruned();
-	matrix.makeCompressed();
-}
-
-void MaxwellSolver::shiftInvert(SparseM &inputMatrix, SparseM &outputMatrix, double sigma)
-
-{
-	std::cout << "Shifting and Inverting..." << std::endl;
-	Clock c;
-	SparseM newMat(m, m), I(m, m);
-	newMat = (inputMatrix - sigma * I);
-
-	Eigen::SimplicialCholesky<SparseM> chol(newMat);
-	outputMatrix = chol.solve(I);
-
-
-	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+	//matrix.pruned();
+	//matrix.makeCompressed();
 }
 
 int MaxwellSolver::findModes()
@@ -318,19 +296,13 @@ int MaxwellSolver::findModes()
 {
 	std::cout << "Finding modes..." << std::endl;
 	Clock c;
-	Spectra::SparseGenMatProd<double> op(matrix);
+	//Spectra::SparseGenMatProd<double> op(matrix);
 	int nev = numEigs;
-	double sigma = 2*PI*k * sqrt(perm);
-	//std::cout << sigma << std::endl;
-	//sigma = k*deltaX*(double)n;
-	//sigma = k * 1.4;
-	//sigma = 0;
-	//SparseM outputMat(m, m);
-	//shiftInvert(matrix, outputMat, sigma);
+	double sigma = k * k * perm*1.0;
 	Clock c2;
-	//Spectra::SparseGenRealShiftSolve<double> op(matrix);
-	//Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 2, sigma);
-	Spectra::GenEigsSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2 * nev + nConv);
+	Spectra::SparseGenRealShiftSolve<double> op(matrix);
+	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1, sigma);
+	//Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2 * nev + nConv);
 	eigs.init();
 	int nconv = eigs.compute();
 

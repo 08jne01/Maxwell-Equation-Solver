@@ -18,12 +18,12 @@ int main()
 	{
 		iters = 160;
 		numEigs = 5;
-		length = 80.0e-6; //160.0e-6
-		k = 2.0*PI / (1.50e-6); // 1.55e-6
+		length = 60.0e-6 / 120; //160.0e-6
+		k = 2.0*PI / (1.55e-6); // 1.55e-6
 		width = 1000;
 		perm = 1.45; //2.09 //1.45
 		conv = 10;
-		filename = "COREONLY80WIDE.bmp";
+		filename = "IndexCheck_14.bmp";
 	}
 
 	else

@@ -14,6 +14,7 @@
 #include <Spectra/GenEigsRealShiftSolver.h>
 #include <Spectra/MatOp/SparseGenRealShiftSolve.h>
 #include <Spectra/SymEigsShiftSolver.h>
+#include <Spectra/GenEigsComplexShiftSolver.h>
 #include <Spectra/MatOp/SparseGenMatProd.h>
 #include <complex>
 #include <ctime>

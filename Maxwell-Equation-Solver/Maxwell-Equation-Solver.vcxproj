@@ -148,6 +148,7 @@
     <ClInclude Include="MaxwellSolver.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="SolverLaplace.h" />
+    <ClInclude Include="Vector3.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -213,17 +213,17 @@ void Program::setMode(int mode)
 			if (val < 0.0)
 
 			{
-				colorB = 255 - pow((val + 1), 1)*255;
+				colorB = 255*(1 - pow((val + 1), 1));
 				colorR = 0;
-				colorG = 255 - 255 * (-(val*val) + 1);
+				colorG = 255*(1 - 1 * (-(val*val) + 1));
 			}
 
 			else
 
 			{
-				colorR = 255 - pow(-(val - 1), 1) * 255;
+				colorR = 255*(1 - pow(-(val - 1), 1));
 				colorB = 0;
-				colorG = 255 - 255*(-(val*val) + 1);
+				colorG = 255*(1 - (-(val*val) + 1));
 			}
 
 			//std::cout << val << std::endl;
@@ -429,6 +429,7 @@ void Program::keyCallBack(sf::Event events)
 			{
 				if (gOn == 1) gOn = 0;
 				else gOn = 1;
+				break;
 			}
 
 			case sf::Keyboard::Enter:
@@ -436,6 +437,14 @@ void Program::keyCallBack(sf::Event events)
 			{
 				std::cout << "Outputing Current Fields..." << std::endl;
 				writeFields();
+				break;
+			}
+
+			case sf::Keyboard::Escape:
+
+			{
+				window.close();
+				break;
 			}
 		}
 	}	
