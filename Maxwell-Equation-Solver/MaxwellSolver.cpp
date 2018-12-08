@@ -1,13 +1,32 @@
 #include "MaxwellSolver.h"
 
-MaxwellSolver::MaxwellSolver(int number, double kFreq, double length, double permativity, int eigs, int convNum) 
-	: n(number), m(number*number), k(kFreq), matrix(2 * (number*number), 2 * (number*number)), perm(permativity*permativity), numEigs(eigs), nConv(convNum)
+MaxwellSolver::MaxwellSolver(Config conf): config(conf)
 
 {
-	deltaX = (double)length;
-	deltaY = (double)length;
-	//deltaX = 1.0;
-	//deltaY = 1.0;
+	n = config.points;
+	m = n * n;
+	k = 2.0*PI / config.wavelength;
+	matrix.resize(2 * m, 2 * m);
+	perm = config.maxIndex*config.maxIndex;
+	numEigs = config.numModes;
+	nConv = config.convergance;
+	deltaX = config.sizeOfStructure / config.numPointStructure;
+	deltaY = deltaX;
+}
+
+MaxwellSolver::~MaxwellSolver()
+
+{
+	//Clear up just in case
+	eigenVals.resize(0);
+	eigenVectors.resize(0, 0);
+	perms.clear();
+	coeffsUx.clear();
+	coeffsUy.clear();
+	coeffsPermX.clear();
+	coeffsPermY.clear();
+	coeffsPermZInverse.clear();
+	matrix.resize(0, 0);
 }
 
 int MaxwellSolver::index(int i, int j)
@@ -18,22 +37,18 @@ int MaxwellSolver::index(int i, int j)
 
 void MaxwellSolver::condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ)
 
-{
+{	//Iterates through each value and puts it into a new triplet vector based on position and lowJ and lowI
+	//It seems like this would be slow but Eigen3 has a special iterator for this.
 	for (int l = 0; l < m1.outerSize(); l++)
 
 	{
-		//std::cout << m1.outerSize() << std::endl;
 		for (Eigen::SparseMatrix<double>::InnerIterator it(m1, l); it; ++it)
 
 		{
-			//if (i > lowI - 1 && i < highI && j < lowJ - 1 && j > highJ)
-			//{
 			int i = it.col() + lowJ;
 			int j = it.row() + lowI;
-			//std::cout << lowI << std::endl;
 			double val = it.value();
 			if (i < 2*m && i > -1 && j < 2*m && j > -1) returnVec.push_back(Triplet(j, i, val));
-			//}
 		}
 	}
 }
@@ -44,29 +59,29 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	std::cout << "Condensing matricies..." << std::endl;
 	Clock c;
 	std::vector<Triplet> v;
-
 	std::vector<Triplet> v1;
 	std::vector<Triplet> v2;
 	std::vector<Triplet> v3;
 	std::vector<Triplet> v4;
+
 	//Parallised
 	std::thread tr1([&]() {condenseThread(m1, v1, 0, 0);});
 	std::thread tr2([&]() {condenseThread(m2, v2, 0, m); });
 	std::thread tr3([&]() {condenseThread(m3, v3, m, 0); });
 	std::thread tr4([&]() {condenseThread(m4, v4, m, m); });
-	
+	//Join threads simulatenously
 	tr1.join();
 	tr2.join();
 	tr3.join();
 	tr4.join();
-
+	//Reserve space for final vector
 	v.reserve(v1.size() + v2.size() + v3.size() + v4.size());
+	//Insert vectors
 	v.insert(v.end(), v1.begin(), v1.end());
 	v.insert(v.end(), v2.begin(), v2.end());
 	v.insert(v.end(), v3.begin(), v3.end());
 	v.insert(v.end(), v4.begin(), v4.end());
-	
-
+	//Set P (matrix) from triplets
 	returnMatrix.setFromTriplets(v.begin(), v.end());
 	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 }
@@ -77,46 +92,9 @@ void MaxwellSolver::insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, 
 	if (superI < m && superJ < m && superI > -1 && superJ > -1)
 
 	{
+		//Insert coefficient if it is in bounds
 		matrixCoeffs.push_back(Triplet(superI, superJ, val));
 	}
-
-	else if (superJ > m - 1 || superJ < 0)
-
-	{
-		//matrixCoeffs.push_back(Triplet(superI, superI, 1.0));
-	}
-}
-
-void MaxwellSolver::buildGeometry(double scale, std::string filename)
-
-{
-	//Allocate memory for filename and convert filename to char array so that string can be used
-	char *filenameCharArray = (char*)malloc(sizeof(char) * (filename.size() + 1));
-	strcpy_s(filenameCharArray, filename.size() + 1, filename.c_str());
-	//Open file and create write buffer
-	FILE *in;
-	fopen_s(&in, filenameCharArray, "rb");
-	unsigned char info[54];
-	fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
-	int width = *(int*)&info[18];
-	int height = *(int*)&info[22];
-	int size = 3 * width * height;
-	unsigned char* data = new unsigned char[size];
-	fread_s(data, size * sizeof(unsigned char), sizeof(unsigned char), size, in);
-	fclose(in);
-	free(filenameCharArray);
-
-	for (int i = 0; i < width*height; i++)
-
-	{
-		double val1 = (double)(data[3 * (i)] + data[3 * (i) + 1] + data[3 * (i) + 2]) / (3.0);
-		double val2 = (scale - 1.0)*val1/255.0 + 1.0;
-		geometry.push_back(val1);
-		perms.push_back(val2*val2);
-	}
-	//Need to make a check for sizes!
-	delete data;
-	std::cout << filename << " geometry imported!" << std::endl;
 }
 
 Vector3 MaxwellSolver::getPermComponent(int i, int j)
@@ -124,7 +102,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 {
 	double rx, ry, rz;
 	int superI = index(i, j);
-
+	//Check if it is on the boundary
 	if (i == 0 || j == 0 || i == n || j == n)
 
 	{
@@ -135,7 +113,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 
 	else
 
-	{
+	{	//Averages across 2 points (stair case approximation)
 		rx = (perms[superI] + perms[index(i, j - 1)]) / 2;
 		ry = (perms[superI] + perms[index(i - 1, j)]) / 2;
 		rz = (perms[superI] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
@@ -147,59 +125,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 	return Vector3(rx, ry, rz);
 }
 
-void MaxwellSolver::buildPerm()
-
-{
-	
-	//double val = 1.0;
-	//Default Case
-	//Set Perms
-	
-	for (int j = 0; j < n; j++)
-
-	{
-		for (int i = 0; i < n; i++)
-
-		{
-			int superI = index(i, j);
-			Vector3 permVec(1.0, 1.0, 1.0);
-			//02
-			if (i > 59 && i < 99 && j > 59 && j < 99)
-
-			{
-				permVec = Vector3(perm, perm, perm);
-			}
-
-			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
-			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
-
-			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
-		}
-	}
-	
-	
-	/*
-	for (int j = 0; j < n; j++)
-
-	{
-		for (int i = 0; i < n; i++)
-
-		{
-			int superI = index(i, j);
-			Vector3 permVec = getPermComponent(j, i);
-
-			//std::cout << rx << " " << ry << " " << rz << std::endl;
-
-			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
-			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
-
-			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
-		}
-		
-	}*/
-}
-
-void MaxwellSolver::buildPotCoeffs()
+void MaxwellSolver::buildBoundaries()
 
 {
 	std::cout << "Building Boundary..." << std::endl;
@@ -210,38 +136,17 @@ void MaxwellSolver::buildPotCoeffs()
 		for (int i = 0; i < n; i++)
 
 		{
-			
 			int superI = index(i, j);
-			/*
-			insertCoeff(coeffsUx, superI, index(i, j),  (-1.0) / deltaX);
-			insertCoeff(coeffsUx, superI, index(i + 1, j),  + (1.0) / deltaX);
-
-			insertCoeff(coeffsUy, superI, index(i, j),  (-1.0) / deltaY);
-			insertCoeff(coeffsUy, superI, index(i + n, j),  + (1.0) / deltaY);
-			*/
-			//U
+			//Set Permativities
+			Vector3 permVec = getPermComponent(j, i);
+			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
+			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
+			//Set Window Boundary conditions
 			insertCoeff(coeffsUx, superI, superI, -1.0);
-				
-			//std::cout << superI << " " << superI % n-1 << std::endl;
-			if ((superI + 1) % n != 0)
-
-			{
-				insertCoeff(coeffsUx, superI, superI+1, 1.0);
-				
-			}
+			if ((superI + 1) % n != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
 			insertCoeff(coeffsUy, superI, superI, -1.0);
 			insertCoeff(coeffsUy, superI, superI+n, 1.0);
-
-			//V
-			//insertCoeff(coeffsVx, superI, superI, 1.0);
-			//insertCoeff(coeffsVx, superI, superI + 1, -1.0);
-
-			//insertCoeff(coeffsVy, superI, superI, 1.0);
-			//insertCoeff(coeffsVy, superI, superI+n, -1.0);
-
-			insertCoeff(identity, superI, superI, 1.0);
-			
-			
 		}
 	}
 	std::cout << "Done in "  << c.elapsed() << " ms" << std::endl;
@@ -255,31 +160,28 @@ void MaxwellSolver::buildMatrix()
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
 			Vx(m, m), Vy(m, m), erx(m, m),
 			ery(m, m), erzI(m, m), I(m, m);
-
+	//Resize boundary matrices
 	Ux.resize(m, m);
 	Uy.resize(m, m);
 	//Boundary
 	Ux.setFromTriplets(coeffsUx.begin(), coeffsUx.end());
 	Uy.setFromTriplets(coeffsUy.begin(), coeffsUy.end());
+	//Clear coeffs from memory
+	coeffsUx.clear();
+	coeffsUy.clear();
+
 	//Vx.setFromTriplets(coeffsVx.begin(), coeffsVx.end());
 	//Vy.setFromTriplets(coeffsVy.begin(), coeffsVy.end());
 
-
+	//Set grid spacing
 	SparseM Ux_temp = Ux / deltaX;
 	SparseM Uy_temp = Uy / deltaY;
-	SparseM Vx_temp = Vx;
-	SparseM Vy_temp = Vy;
-
 	Ux = Ux_temp;
 	Uy = Uy_temp;
 
-	
-
-	Vx_temp = Ux_temp.transpose();
-	Vy_temp = Uy_temp.transpose();
-
-	Vx = -Vx_temp;
-	Vy = -Vy_temp;
+	//Setup Vx and Vy
+	Vx = -Ux_temp.transpose();
+	Vy = -Uy_temp.transpose();
 
 	//Permativities
 	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
@@ -287,16 +189,11 @@ void MaxwellSolver::buildMatrix()
 	//Inverse Permativities
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
-	I.setFromTriplets(identity.begin(), identity.end());
-	
-
+	I.setIdentity();
 
 	double kSqr = k * k;
-	double kSqrI = 1.0 / kSqr;
 
-	//Problem at 44 and 66
 	Pxx = -(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr);
-	//Pxx = m1 + (m2 * m3);
 	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
 	Pxy = (Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr;
 	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
@@ -325,16 +222,16 @@ int MaxwellSolver::findModes()
 {
 	std::cout << "Finding modes..." << std::endl;
 	Clock c;
-	//Spectra::SparseGenMatProd<double> op(matrix);
 	int nev = numEigs;
+	//Initial Guess for eigen solver
 	double sigma = k * k * perm*1.0;
-	Clock c2;
 	Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10
 	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1 + n/10, sigma);
-	//Spectra::GenEigsSolver<double, Spectra::LARGEST_REAL, Spectra::SparseGenMatProd<double>> eigs(&op, nev, 2 * nev + nConv);
+	//Initalise eigen solver and compute
 	eigs.init();
 	int nconv = eigs.compute();
 
+	//Check if successful
 	if (eigs.info() == Spectra::SUCCESSFUL)
 
 	{
@@ -358,13 +255,9 @@ int MaxwellSolver::findModes()
 		std::cout << "NUMERICAL ISSUE!" << std::endl;
 		return EXIT_FAILURE;
 	}
-	
-	//std::cout << std::setprecision(14) << eigenVals << std::endl;
-
-	//std::cout << eigenVectors.col(0).size() << std::endl;
 }
 
-void MaxwellSolver::findField()
+Field MaxwellSolver::constructField()
 
 {
 	Clock c;
@@ -372,62 +265,64 @@ void MaxwellSolver::findField()
 	typedef Eigen::Triplet<std::complex<double>> TripletComplex;
 
 	std::cout << "Finding remaining field components..." << std::endl;
+	//Get sizes
 	int inner, outer;
-	inner = eigenVectors.innerSize();
+	inner = eigenVectors.innerSize() / 2.0;
 	outer = eigenVectors.outerSize();
 
-	Ex.resize(inner / 2, outer);
-	Ey.resize(inner / 2, outer);
-	Ez.resize(inner / 2, outer);
+	Field field;
 
-	Hx.resize(inner / 2, outer);
-	Hy.resize(inner / 2, outer);
-	Hz.resize(inner / 2, outer);
+	//Set Eigen Values;
+	field.setEigenValues(eigenVals);
+	field.k = k;
 
+	//Resize fields
+	field.Ex.resize(inner, outer);
+	field.Ey.resize(inner, outer);
+	field.Ez.resize(inner, outer);
+	field.Hx.resize(inner, outer);
+	field.Hy.resize(inner, outer);
+	field.Hz.resize(inner, outer);
+
+	//Split output into Ex field and Ey field
 	for (int i = 0; i < eigenVectors.outerSize(); i++)
 
 	{
-		Ex.col(i) = eigenVectors.col(i).head(eigenVectors.innerSize() / 2);
-		Ey.col(i) = eigenVectors.col(i).tail(eigenVectors.innerSize() / 2);
+		field.Ex.col(i) = eigenVectors.col(i).head(inner);
+		field.Ey.col(i) = eigenVectors.col(i).tail(inner);
 	}
 
+	//Remake Matrices for operations
 	SparseM erzI(m, m), erx(m, m), ery(m, m), UxCom(m, m), UyCom(m, m), Vx(m, m), Vy(m, m);
-
-
-	//double invImp = 1.0 / (120.0 * PI);
-
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
 	ery.setFromTriplets(coeffsPermY.begin(), coeffsPermY.end());
 	Vx = -Ux.transpose();
 	Vy = -Uy.transpose();
 
+	//Clear vectors used for last time
+	coeffsPermZInverse.clear();
+	coeffsPermX.clear();
+	coeffsPermY.clear();
+
 	double k0 = k;
 
-
-	for (int i = 0; i < Ex.outerSize(); i++)
-
-	{
-		Hz.col(i) = (-1 / k0)*(-Uy * (Ex.col(i)) + Ux * (Ey.col(i)));
-	}
-
-	for (int i = 0; i < Ex.outerSize(); i++)
+	//Construct field components
+	for (int i = 0; i < outer; i++)
 
 	{
-		Hx.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(Vx*Hz.col(i) - k0*ery*Ey.col(i));
+		field.Hz.col(i) = (-1 / k0)*(-Uy * (field.Ex.col(i)) + Ux * (field.Ey.col(i)));
+		field.Hx.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
+		field.Hy.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
+		field.Ez.col(i) = (1 / k0)*erzI*(-Vy * field.Hx.col(i) + Vx * field.Hy.col(i));
 	}
 
-	for (int i = 0; i < Ex.outerSize(); i++)
-
-	{
-		Hy.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(k0*erx*Ex.col(i) + Vy*Hz.col(i));
-	}
-
-	for (int i = 0; i < Ex.outerSize(); i++)
-
-	{
-		Ez.col(i) = cos(PI / 2)*(1 / k0)*erzI*(-Vy*Hx.col(i) + Vx*Hy.col(i));
-	}
+	//Clear boundary matrices used for last time
+	Ux.resize(0, 0);
+	Uy.resize(0, 0);
 
 	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+
+	return field;
+	
 }
