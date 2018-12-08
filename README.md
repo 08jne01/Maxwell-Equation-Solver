@@ -2,6 +2,8 @@
 
 This is a Finite Difference Frequency Domain sovler for maxwells equations in an optical fiber/waveguide implemented in C++. This is an implementation of the paper: https://doi.org/10.1364/OE.10.000853.
 
+Some example modes in different fibers https://imgur.com/a/CVyIGNq
+
 **Results are not confirmed to be accurate yet, this is a WIP project!!**
 
 Dependancies:
