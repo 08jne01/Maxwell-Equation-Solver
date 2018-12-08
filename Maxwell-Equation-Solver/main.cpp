@@ -17,13 +17,14 @@ int main()
 
 	{
 		iters = 160;
-		numEigs = 5;
-		length = 60.0e-6 / 120; //160.0e-6
+		numEigs = 1;
+		length = 2.0e-6 / 40; //160.0e-6
 		k = 2.0*PI / (1.55e-6); // 1.55e-6
+		//k = 1;
 		width = 1000;
 		perm = 1.45; //2.09 //1.45
 		conv = 10;
-		filename = "IndexCheck_14.bmp";
+		filename = "Fibers/PaperExample.bmp";
 	}
 
 	else

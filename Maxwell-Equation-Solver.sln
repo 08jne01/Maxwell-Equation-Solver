@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28010.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maxwell-Equation-Solver", "Maxwell-Equation-Solver\Maxwell-Equation-Solver.vcxproj", "{018DAA3B-0FCF-4839-8D8A-D0F1CB95DDFC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Maxwell-Solver-Rework", "Maxwell-Solver-Rework\Maxwell-Solver-Rework.vcxproj", "{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{018DAA3B-0FCF-4839-8D8A-D0F1CB95DDFC}.Release|x64.Build.0 = Release|x64
 		{018DAA3B-0FCF-4839-8D8A-D0F1CB95DDFC}.Release|x86.ActiveCfg = Release|Win32
 		{018DAA3B-0FCF-4839-8D8A-D0F1CB95DDFC}.Release|x86.Build.0 = Release|Win32
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Debug|x64.ActiveCfg = Debug|x64
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Debug|x64.Build.0 = Debug|x64
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Debug|x86.ActiveCfg = Debug|Win32
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Debug|x86.Build.0 = Debug|Win32
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Release|x64.ActiveCfg = Release|x64
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Release|x64.Build.0 = Release|x64
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Release|x86.ActiveCfg = Release|Win32
+		{FF95F88C-A0D9-4BBB-85DC-817AE6A6189A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

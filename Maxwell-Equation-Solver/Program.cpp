@@ -352,7 +352,7 @@ void Program::writeFields()
 {
 	std::ofstream file;
 	std::stringstream os;
-	std::string s = "Field_Components_Mode_";
+	std::string s = "Output_Data/Field_Components_Mode_";
 	std::string end = ".dat";
 	os << s << mode+1 << end;
 	file.open(os.str());
@@ -376,6 +376,8 @@ void Program::writeFields()
 				<< fieldComponents[5].col(mode)[i + size * j] << std::endl;
 		}
 	}
+
+	file.close();
 }
 
 void Program::keyCallBack(sf::Event events)

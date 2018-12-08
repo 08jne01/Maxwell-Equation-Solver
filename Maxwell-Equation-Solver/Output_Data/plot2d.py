@@ -32,7 +32,7 @@ y = np.unique(y)
 
 fields = []
 
-for i in range(2, 6):
+for i in range(2, 8):
 	field = arr[i, :]
 	fields.append(field.reshape(len(x), len(y)))
 
@@ -53,9 +53,10 @@ fig, plots = plt.subplots(1, 2, figsize=(10,5))
 for i in plots:
 	i.set_aspect(1.0)
 
+print len(fields)
 
 for i in range(0, 2):
-	plots[i].pcolor(X,Y,fields[i])
+	plots[i].pcolor(X,Y,fields[i+3])
 
 """
 n = 0
@@ -73,5 +74,5 @@ for i in plots:
 #plt.plot(x,y, "-");
 #plt.xlabel("r (arb. units)")
 #plt.ylabel("Et (arb. units)")
-
+plt.savefig("square100um.png")
 plt.show()

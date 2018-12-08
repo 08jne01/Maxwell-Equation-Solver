@@ -338,3 +338,6 @@ ASALocalRun/
 *.dat
 /Maxwell-Equation-Solver/Data/Step-Fibre-Diff-Cladding
 *.png
+/Maxwell-Equation-Solver/include/Armadillo
+/Maxwell-Solver-Rework
+/Maxwell-Equation-Solver/Fibers

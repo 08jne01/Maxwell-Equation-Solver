@@ -36,6 +36,8 @@ private:
 	std::vector<double> perms;
 	std::vector<Triplet> coeffsUx;
 	std::vector<Triplet> coeffsUy;
+	std::vector<Triplet> coeffsVx;
+	std::vector<Triplet> coeffsVy;
 	std::vector<Triplet> coeffsPermX;
 	std::vector<Triplet> coeffsPermY;
 	std::vector<Triplet> coeffsPermZInverse;
