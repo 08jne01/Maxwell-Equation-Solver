@@ -34,6 +34,8 @@ public:
 	vec eigenValues;
 
 	double k;
+	double dx;
+	double dy;
 
 	std::string fieldNames[6] = { "Ex", "Ey", "Ez", "Hx", "Hy", "Hz" };
 

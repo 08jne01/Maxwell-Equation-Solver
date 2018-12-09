@@ -275,6 +275,8 @@ Field MaxwellSolver::constructField()
 	//Set Eigen Values;
 	field.setEigenValues(eigenVals);
 	field.k = k;
+	field.dx = deltaX;
+	field.dy = deltaY;
 
 	//Resize fields
 	field.Ex.resize(inner, outer);

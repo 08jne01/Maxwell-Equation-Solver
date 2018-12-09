@@ -69,7 +69,7 @@ int Program::mainLoop()
 			modeSet = 1;
 		}
 
-		window.clear(sf::Color::White);
+		window.clear(sf::Color::Black);
 
 		//Draw Here
 		draw();
@@ -258,9 +258,12 @@ void Program::writeFields()
 	os << s << mode+1 << end;
 	file.open(os.str());
 
-	int size = sqrt(fieldComponents[0].col(0).size());
+	int size = sqrt(field.Ex.col(0).size());
 
-	file << "x,y,Hx,Hy,Hz,Ex,Ey,Ez" << std::endl;
+	file << "x,y,Ex,Ey,Ez,Hx,Hy,Hz" << std::endl;
+
+	double dx = field.dx;
+	double dy = field.dy;
 
 	for (int i = 0; i < size; i++)
 
@@ -268,13 +271,14 @@ void Program::writeFields()
 		for (int j = 0; j < size; j++)
 
 		{
-			file << i << "," << j << ","
-				<< fieldComponents[0].col(mode)[i + size * j] << ","
-				<< fieldComponents[1].col(mode)[i + size * j] << ","
-				<< fieldComponents[2].col(mode)[i + size * j] << ","
-				<< fieldComponents[3].col(mode)[i + size * j] << ","
-				<< fieldComponents[4].col(mode)[i + size * j] << ","
-				<< fieldComponents[5].col(mode)[i + size * j] << std::endl;
+
+			file << i*dx << "," << j*dy << ","
+				<< field.Ex.col(mode)[i + size * j] << ","
+				<< field.Ey.col(mode)[i + size * j] << ","
+				<< field.Ez.col(mode)[i + size * j] << ","
+				<< field.Hx.col(mode)[i + size * j] << ","
+				<< field.Hy.col(mode)[i + size * j] << ","
+				<< field.Hz.col(mode)[i + size * j] << std::endl;
 		}
 	}
 

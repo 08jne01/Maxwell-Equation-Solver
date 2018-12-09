@@ -38,6 +38,9 @@ for i in range(2, 8):
 
 X, Y = np.meshgrid(x, y)
 
+X /= 1e-4
+Y /= 1e-4
+
 #print(get_field(arr[2]))
 
 
@@ -48,15 +51,40 @@ X, Y = np.meshgrid(x, y)
 #x, y = np.loadtxt
 #arr = [y1, y2, y3, y4];
 
-fig, plots = plt.subplots(1, 2, figsize=(10,5))
+
+
+fig, plots = plt.subplots(1, 3, figsize=(10,5))
 
 for i in plots:
 	i.set_aspect(1.0)
+	i.set_xlabel("x (microns)")
+	i.set_ylabel("y (microns)")
 
-print len(fields)
+titles = ["Ex field", "Ey field", "Ez field"]
 
-for i in range(0, 2):
-	plots[i].pcolor(X,Y,fields[i+3])
+for i in range(0, 3):
+	plots[i].pcolor(X,Y,fields[i])
+	plots[i].set_title(titles[i])
+
+plt.tight_layout()
+plt.savefig("E-Fields.png")
+
+fig2, plots2 = plt.subplots(1, 3, figsize=(10,5))
+
+for i in plots2:
+	i.set_aspect(1.0)
+	i.set_xlabel("x (microns)")
+	i.set_ylabel("y (microns)")
+
+titles = ["Hx field", "Hy field", "Hz field"]
+
+for i in range(0, 3):
+	plots2[i].pcolor(X,Y,fields[i+3])
+	plots2[i].set_title(titles[i])
+
+plt.tight_layout()
+plt.savefig("H-fields.png")
+plt.show()
 
 """
 n = 0
@@ -74,5 +102,4 @@ for i in plots:
 #plt.plot(x,y, "-");
 #plt.xlabel("r (arb. units)")
 #plt.ylabel("Et (arb. units)")
-plt.savefig("square100um.png")
-plt.show()
+
