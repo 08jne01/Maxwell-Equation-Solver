@@ -19,4 +19,5 @@ struct Config
 	double maxIndex;
 	int convergance;
 	std::string fiber;
+	int timers;
 };

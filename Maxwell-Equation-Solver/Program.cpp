@@ -31,53 +31,73 @@ int Program::mainLoop()
 		return EXIT_FAILURE;
 	}
 
-	//Calculate based on inital settings
-	if (calculate() != EXIT_SUCCESS)
+	int willSweep = 1;
+
+	if (willSweep == 0)
 
 	{
-		return EXIT_FAILURE;
-	}
-	//Create the window after calculation
-	window.create(sf::VideoMode(w, h), "Maxwell Equation Solver");
-
-	if (!window.isOpen())
-
-	{
-		return EXIT_FAILURE;
+		Sweep sweep(0, fileHandler);
+		std::vector<Vector2> neff;
+		sweep.wavelengthTrace(1.50e-2, 1.0e-2, 10);
+		sweep.outputData("Output_Data/Sweep.dat");
 	}
 
-	while (window.isOpen())
+	else
 
 	{
-		while (window.pollEvent(events))
+
+
+		//Calculate based on inital settings
+		if (calculate() != EXIT_SUCCESS)
 
 		{
-			if (events.type == sf::Event::EventType::Closed)
+			return EXIT_FAILURE;
+		}
+
+
+
+		//Create the window after calculation
+		window.create(sf::VideoMode(w, h), "Maxwell Equation Solver");
+
+		if (!window.isOpen())
+
+		{
+			return EXIT_FAILURE;
+		}
+
+		while (window.isOpen())
+
+		{
+			while (window.pollEvent(events))
 
 			{
-				window.close();
+				if (events.type == sf::Event::EventType::Closed)
+
+				{
+					window.close();
+				}
+				//Callback for user commands
+				keyCallBack(events);
 			}
-			//Callback for user commands
-			keyCallBack(events);
+
+			if (modeSet != 1)
+
+			{
+				setMode(mode);
+				std::cout << "Current Mode: " << (mode)+1 << std::endl << "=====================" << std::endl;
+				modeSet = 1;
+			}
+
+			window.clear(sf::Color::Black);
+
+			//Draw Here
+			draw();
+
+			window.display();
+
 		}
-
-		if (modeSet != 1)
-
-		{
-			setMode(mode);
-			std::cout << "Current Mode: " << (mode)+1 << std::endl << "=====================" << std::endl;
-			modeSet = 1;
-		}
-
-		window.clear(sf::Color::Black);
-
-		//Draw Here
-		draw();
-
-		window.display();
-
 	}
-
+	system("PAUSE");
 	return EXIT_SUCCESS;
 }
 
@@ -105,14 +125,19 @@ int Program::calculate()
 
 		{
 			double val = getValue(localGeometry, sqrt(localGeometry.size()), i, j, w, w);
-			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, j), sf::Color(val, val, val, 100)));
+			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + w) % w), sf::Color(val, val, val, 100)));
 		}
 	}
 	//Build boundaries and matrices
 	max.buildBoundaries();
 	max.buildMatrix();
+
+	double k = 2.0*PI / fileHandler.config.wavelength;
+
+
 	//Find the modes
-	if (max.findModes() == EXIT_SUCCESS)
+	//pow(k*0.99999, 2.0)
+	if (max.findModes(pow(k*0.99999999, 2.)) == EXIT_SUCCESS)
 
 	{
 		field = max.constructField();
@@ -134,7 +159,8 @@ void Program::setMode(int mode)
 	//Sets the mode
 	std::cout << "Displaying " << field.getFieldName(displayField) << " Component" << std::endl;
 	std::cout << "Eigen Value: " << field.eigenValues[mode] << std::endl;
-	std::cout << "neff: " << sqrt(abs(field.eigenValues[mode])) / field.k << std::endl;
+	
+	std::cout << std::setprecision(10) << "neff: " << sqrt(abs((double)field.eigenValues[mode])) / (double)field.k << std::endl;
 	points.clear();
 	std::vector<double> normal;
 	Eigen::VectorXd vec = field.getField(displayField).col(mode);
@@ -163,7 +189,7 @@ void Program::setMode(int mode)
 				colorB = 0;
 				colorG = 255*(1 - (-(val*val) + 1));
 			}
-			points.append(sf::Vertex(sf::Vector2f(i,j), sf::Color(colorR, colorG, colorB)));
+			points.append(sf::Vertex(sf::Vector2f(i,(-j + w) % w), sf::Color(colorR, colorG, colorB)));
 		}
 	}
 }
@@ -273,12 +299,12 @@ void Program::writeFields()
 		{
 
 			file << i*dx << "," << j*dy << ","
-				<< field.Ex.col(mode)[i + size * j] << ","
-				<< field.Ey.col(mode)[i + size * j] << ","
-				<< field.Ez.col(mode)[i + size * j] << ","
-				<< field.Hx.col(mode)[i + size * j] << ","
-				<< field.Hy.col(mode)[i + size * j] << ","
-				<< field.Hz.col(mode)[i + size * j] << std::endl;
+				<< field.Ex.col(mode)[j + size * i] << ","
+				<< field.Ey.col(mode)[j + size * i] << ","
+				<< field.Ez.col(mode)[j + size * i] << ","
+				<< field.Hx.col(mode)[j + size * i] << ","
+				<< field.Hy.col(mode)[j + size * i] << ","
+				<< field.Hz.col(mode)[j + size * i] << std::endl;
 		}
 	}
 

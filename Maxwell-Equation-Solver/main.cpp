@@ -28,5 +28,4 @@ int main()
 	Program p(width, width, filename);
 
 	return p.mainLoop();
-
 }

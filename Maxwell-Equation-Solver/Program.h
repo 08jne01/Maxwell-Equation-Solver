@@ -1,9 +1,10 @@
 #pragma once
 //#include "Header.h"
 #include <SFML/Graphics.hpp>
-#include "MaxwellSolver.h"
-#include "Clock.h"
 #include "FileHandler.h"
+#include "MaxwellSolver.h"
+#include "Sweep.h"
+#include "Clock.h"
 //Important to have class for main program to avoid global definition of variables which is in general bad.
 class Program
 

@@ -29,6 +29,12 @@ MaxwellSolver::~MaxwellSolver()
 	matrix.resize(0, 0);
 }
 
+void MaxwellSolver::setWavelength(double wavelength)
+
+{
+	k = 2.0*PI / wavelength;
+}
+
 int MaxwellSolver::index(int i, int j)
 
 {
@@ -56,7 +62,7 @@ void MaxwellSolver::condenseThread(SparseM &m1, std::vector<Triplet> &returnVec,
 void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4, SparseM &returnMatrix)
 
 {
-	std::cout << "Condensing matricies..." << std::endl;
+	if (config.timers == 1) std::cout << "Condensing matricies..." << std::endl;
 	Clock c;
 	std::vector<Triplet> v;
 	std::vector<Triplet> v1;
@@ -83,7 +89,7 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	v.insert(v.end(), v4.begin(), v4.end());
 	//Set P (matrix) from triplets
 	returnMatrix.setFromTriplets(v.begin(), v.end());
-	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+	if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 }
 
 void MaxwellSolver::insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val)
@@ -128,7 +134,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 void MaxwellSolver::buildBoundaries()
 
 {
-	std::cout << "Building Boundary..." << std::endl;
+	if (config.timers == 1) std::cout << "Building Boundary..." << std::endl;
 	Clock c;
 	for (int j = 0; j < n; j++)
 
@@ -138,50 +144,128 @@ void MaxwellSolver::buildBoundaries()
 		{
 			int superI = index(i, j);
 			//Set Permativities
-			Vector3 permVec = getPermComponent(j, i);
+			Vector3 permVec = getPermComponent(i, j);
 			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
 			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
 			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
 			//Set Window Boundary conditions
+			
+
+			/*
+
+			if (j == 0)
+
+			{
+				//std::cout << "Test" << std::endl;
+				//insertCoeff(coeffsUx, superI, superI, -1.0);
+				//insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+				//Symetric
+				insertCoeff(coeffsUxSym, superI, superI, -1.0);
+				insertCoeff(coeffsUxSym, superI, superI + 1, 1.0);
+			}
+
+			else if ((superI + 1) % n != 0)
+
+			{
+				//insertCoeff(coeffsUx, superI, superI, -1.0);
+				//insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+				//Symetric
+				insertCoeff(coeffsUxSym, superI, superI, -1.0);
+				insertCoeff(coeffsUxSym, superI, superI + 1, 1.0);
+			}
+
+			if (j == 0)
+
+			{
+				//insertCoeff(coeffsUy, superI, superI, -1.0);
+				//insertCoeff(coeffsUy, superI, superI + n, 1.0);
+				//Symetric
+				insertCoeff(coeffsUySym, superI, superI, -1.0);
+				insertCoeff(coeffsUySym, superI, superI + n, 1.0);
+			}
+
+			else
+
+			{
+				//insertCoeff(coeffsUy, superI, superI, -1.0);
+				//insertCoeff(coeffsUy, superI, superI + n, 1.0);
+				//Symetric
+				insertCoeff(coeffsUySym, superI, superI, -1.0);
+				insertCoeff(coeffsUySym, superI, superI + n, 1.0);
+			}
+
+			
+			
+			
+			if ((superI + 1) % n != 0)
+
+			{
+				insertCoeff(coeffsUx, superI, superI, -1.0);
+				insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+				
+			}
+
+			*/
+
 			insertCoeff(coeffsUx, superI, superI, -1.0);
 			if ((superI + 1) % n != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
 			insertCoeff(coeffsUy, superI, superI, -1.0);
 			insertCoeff(coeffsUy, superI, superI+n, 1.0);
+			
+
+			//if (j != 0) insertCoeff(coeffsIdentity, superI, superI, 1.0);
+			
 		}
 	}
-	std::cout << "Done in "  << c.elapsed() << " ms" << std::endl;
+	if (config.timers == 1) std::cout << "Done in "  << c.elapsed() << " ms" << std::endl;
 }
 
 void MaxwellSolver::buildMatrix()
 
 {
-	std::cout << "Building matricies..." << std::endl;
+	if (config.timers == 1) std::cout << "Building matricies..." << std::endl;
 	Clock c;
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
 			Vx(m, m), Vy(m, m), erx(m, m),
-			ery(m, m), erzI(m, m), I(m, m);
+			ery(m, m), erzI(m, m), I(m, m), I_sym(m,m);
 	//Resize boundary matrices
 	Ux.resize(m, m);
 	Uy.resize(m, m);
+	//Ux_sym.resize(m, m);
+	//Uy_sym.resize(m, m);
 	//Boundary
 	Ux.setFromTriplets(coeffsUx.begin(), coeffsUx.end());
 	Uy.setFromTriplets(coeffsUy.begin(), coeffsUy.end());
+	//Ux_sym.setFromTriplets(coeffsUxSym.begin(), coeffsUxSym.end());
+	//Uy_sym.setFromTriplets(coeffsUySym.begin(), coeffsUySym.end());
 	//Clear coeffs from memory
 	coeffsUx.clear();
 	coeffsUy.clear();
+	//coeffsUxSym.clear();
+	//coeffsUySym.clear();
 
 	//Vx.setFromTriplets(coeffsVx.begin(), coeffsVx.end());
 	//Vy.setFromTriplets(coeffsVy.begin(), coeffsVy.end());
-
+	
 	//Set grid spacing
 	SparseM Ux_temp = Ux / deltaX;
 	SparseM Uy_temp = Uy / deltaY;
 	Ux = Ux_temp;
 	Uy = Uy_temp;
 
+
 	//Setup Vx and Vy
 	Vx = -Ux_temp.transpose();
 	Vy = -Uy_temp.transpose();
+
+	//Ux_temp = Ux_sym / deltaX;
+	//Uy_temp = Uy_sym / deltaY;
+	//Ux_sym = Ux_temp; 
+	//Uy_sym = Uy_temp;
+
+	//Ux = Ux_sym;
+	//Uy = Uy_sym;
+	
 
 	//Permativities
 	erx.setFromTriplets(coeffsPermX.begin(), coeffsPermX.end());
@@ -189,14 +273,17 @@ void MaxwellSolver::buildMatrix()
 	//Inverse Permativities
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
+	//I.setIdentity();
+	I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
 	I.setIdentity();
+	I_sym.setIdentity();
 
 	double kSqr = k * k;
 
-	Pxx = -(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr);
-	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
-	Pxy = (Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr;
-	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
+	Pxx = I*(-(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr));
+	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I_sym + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
+	Pxy = I*((Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr);
+	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I_sym + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
 
 	Pxx.prune(1.0 / k);
 	Pyy.prune(1.0 / k);
@@ -208,7 +295,7 @@ void MaxwellSolver::buildMatrix()
 	//std::cout << Pyx << std::endl;
 	//std::cout << Pyy << std::endl;
 
-	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+	if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 
 	condense(Pxx, Pxy, Pyx, Pyy, matrix);
 	//std::cout << kSqr << std::endl;
@@ -217,16 +304,23 @@ void MaxwellSolver::buildMatrix()
 	//matrix.makeCompressed();
 }
 
-int MaxwellSolver::findModes()
+int MaxwellSolver::findModes(double sigma)
 
 {
-	std::cout << "Finding modes..." << std::endl;
+	if (config.timers == 1) std::cout << "Finding modes..." << std::endl;
 	Clock c;
 	int nev = numEigs;
 	//Initial Guess for eigen solver
-	double sigma = k * k * perm*1.0;
+
+	if (sigma < -0.9 && sigma > -1.1)
+
+	{
+		sigma = k * k * perm*1.0;
+	}
+	//SparseGenComplexShiftSolve<double> op(matrix);
 	Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10
 	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1 + n/10, sigma);
+	//Spectra::GenEigsComplexShiftSolver<double, Spectra::LARGEST_MAGN, SparseGenComplexShiftSolve<double>> eigs(&op, nev, 2 * nev + 1 + n / 10, sigma, 0.0);
 	//Initalise eigen solver and compute
 	eigs.init();
 	int nconv = eigs.compute();
@@ -238,7 +332,7 @@ int MaxwellSolver::findModes()
 		std::cout << "Successful!" << std::endl;
 		eigenVals = eigs.eigenvalues().real();
 		eigenVectors = eigs.eigenvectors().real();
-		std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+		if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 		return EXIT_SUCCESS;
 	}
 
@@ -264,7 +358,7 @@ Field MaxwellSolver::constructField()
 	typedef Eigen::SparseMatrix<std::complex<double>> SparseMComplex;
 	typedef Eigen::Triplet<std::complex<double>> TripletComplex;
 
-	std::cout << "Finding remaining field components..." << std::endl;
+	if (config.timers == 1) std::cout << "Finding remaining field components..." << std::endl;
 	//Get sizes
 	int inner, outer;
 	inner = eigenVectors.innerSize() / 2.0;
@@ -292,6 +386,9 @@ Field MaxwellSolver::constructField()
 	{
 		field.Ex.col(i) = eigenVectors.col(i).head(inner);
 		field.Ey.col(i) = eigenVectors.col(i).tail(inner);
+
+		//field.Ex.col(i).normalize();
+		//field.Ey.col(i).normalize();
 	}
 
 	//Remake Matrices for operations
@@ -314,16 +411,33 @@ Field MaxwellSolver::constructField()
 
 	{
 		field.Hz.col(i) = (-1 / k0)*(-Uy * (field.Ex.col(i)) + Ux * (field.Ey.col(i)));
-		field.Hx.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
-		field.Hy.col(i) = (-1 / sqrt(abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
+		field.Hx.col(i) = (1 / sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
+		field.Hy.col(i) = (1 / sqrt(abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
 		field.Ez.col(i) = (1 / k0)*erzI*(-Vy * field.Hx.col(i) + Vx * field.Hy.col(i));
+
+		//field.Hz.col(i).normalize();
+		//field.Hx.col(i).normalize();
+		//field.Hy.col(i).normalize();
+		//field.Ez.col(i).normalize();
 	}
+
+	for (int i = 0; i < outer; i++)
+
+	{
+		field.Hz.col(i).normalize();
+		field.Hx.col(i).normalize();
+		field.Hy.col(i).normalize();
+		field.Ez.col(i).normalize();
+		field.Ex.col(i).normalize();
+		field.Ey.col(i).normalize();
+	}
+
 
 	//Clear boundary matrices used for last time
 	Ux.resize(0, 0);
 	Uy.resize(0, 0);
 
-	std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
+	if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 
 	return field;
 	

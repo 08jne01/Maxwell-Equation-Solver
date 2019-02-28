@@ -1,10 +1,11 @@
 #pragma once
 //#include "Header.h"
-
 #include <iostream>
 #include <thread>
 #include <Eigen/Sparse>
 #include <Spectra/GenEigsRealShiftSolver.h>
+#include <Spectra/GenEigsComplexShiftSolver.h>
+#include <Spectra/MatOp/SparseGenMatProd.h>
 #include <Spectra/MatOp/SparseGenRealShiftSolve.h>
 #include "Header.h"
 #include "Clock.h"
@@ -31,9 +32,10 @@ public:
 	Vector3 getPermComponent(int i, int j);
 
 	//Initialisers
+	void setWavelength(double wavelength);
 	void buildBoundaries();
 	void buildMatrix();
-	int findModes();
+	int findModes(double sigma = -1.0);
 	Field constructField();
 
 	std::vector<double> perms;
@@ -48,11 +50,16 @@ private:
 	//Coefficients
 	std::vector<Triplet> coeffsUx;
 	std::vector<Triplet> coeffsUy;
+	std::vector<Triplet> coeffsUxSym;
+	std::vector<Triplet> coeffsUySym;
+	//std::vector<Triplet> coeffsVx;
+	//std::vector<Triplet> coeffsVy;
 	std::vector<Triplet> coeffsPermX;
 	std::vector<Triplet> coeffsPermY;
 	std::vector<Triplet> coeffsPermZInverse;
+	std::vector<Triplet> coeffsIdentity;
 	//Matrices
-	SparseM matrix, Ux, Uy;
+	SparseM matrix, Ux, Uy, Ux_sym, Uy_sym;
 	//Results
 	Eigen::VectorXd eigenVals;
 	Eigen::MatrixXd eigenVectors;

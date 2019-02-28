@@ -45,7 +45,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 8)
+	if (conf.size() != 9)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -65,6 +65,7 @@ void FileHandler::readConfig(std::string filename)
 		conf[5] >> config.maxIndex;
 		conf[6] >> config.convergance;
 		conf[7] >> config.fiber;
+		conf[8] >> config.timers;
 	}
 }
 

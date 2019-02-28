@@ -13,60 +13,93 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\Main">
+      <UniqueIdentifier>{7f1f39d4-1223-4fdd-8b7e-6768c68a8c35}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tools">
+      <UniqueIdentifier>{32725daa-fb1d-48b1-80b2-b9a4b7b66ea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Maxwell">
+      <UniqueIdentifier>{cc675082-903c-4693-8d08-c7102d865025}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Main">
+      <UniqueIdentifier>{b0b9a60b-b617-481b-9939-f614413d9b7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Maxwell">
+      <UniqueIdentifier>{a03df6c6-2c01-48f0-94dc-de921b44a52e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Tools">
+      <UniqueIdentifier>{76491ef8-4449-4d19-8b22-2cf8f9db848b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Structs">
+      <UniqueIdentifier>{7f44051a-9674-4a92-9ed3-9d3666e2dddf}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Program.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="FileHandler.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\Main</Filter>
     </ClCompile>
-    <ClCompile Include="MaxwellSolver.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Program.cpp">
+      <Filter>Source Files\Main</Filter>
     </ClCompile>
     <ClCompile Include="Clock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Field.h">
-      <Filter>Header Files</Filter>
+      <Filter>Source Files\Tools</Filter>
     </ClCompile>
     <ClCompile Include="Field.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Maxwell</Filter>
+    </ClCompile>
+    <ClCompile Include="MaxwellSolver.cpp">
+      <Filter>Source Files\Maxwell</Filter>
+    </ClCompile>
+    <ClCompile Include="FileHandler.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Sweep.cpp">
+      <Filter>Source Files\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="Field.h">
+      <Filter>Header Files\Maxwell</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Program.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Interface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MaxwellSolver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Clock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vector3.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Program.h">
+      <Filter>Header Files\Main</Filter>
+    </ClInclude>
+    <ClInclude Include="Sweep.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="FileHandler.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Clock.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="MaxwellSolver.h">
+      <Filter>Header Files\Maxwell</Filter>
+    </ClInclude>
+    <ClInclude Include="Config.h">
+      <Filter>Header Files\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector3.h">
+      <Filter>Header Files\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2.h">
+      <Filter>Header Files\Structs</Filter>
+    </ClInclude>
+    <ClInclude Include="SparseGenComplexShiftSolve.h">
+      <Filter>Header Files\Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

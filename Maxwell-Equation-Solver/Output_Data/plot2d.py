@@ -38,8 +38,8 @@ for i in range(2, 8):
 
 X, Y = np.meshgrid(x, y)
 
-X /= 1e-4
-Y /= 1e-4
+X /= 1e-2
+Y /= 1e-2
 
 #print(get_field(arr[2]))
 
