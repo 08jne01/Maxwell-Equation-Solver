@@ -15,18 +15,18 @@ private:
 	typedef Eigen::Map<const Vector> MapConstVec;
 	typedef Eigen::Map<Vector> MapVec;
 	typedef Eigen::SparseMatrix<Scalar> SparseMatrix;
-	typedef const Eigen::Ref<const SparseMatrix> ConstGenericSparseMatrix;
+	//typedef const Eigen::Ref<const SparseMatrix> ConstGenericSparseMatrix;
 
 	typedef Eigen::SparseMatrix<Complex> ComplexMatrix;
 	typedef Eigen::Matrix<Complex, Eigen::Dynamic, 1> ComplexVector;
-
-	const SparseMatrix& m_mat;
+	typedef const Eigen::Ref<const ComplexMatrix> ConstGenericSparseMatrix;
+	const ComplexMatrix& m_mat;
 	const int m_n;
 	Eigen::SparseLU<ComplexMatrix> m_solver;
 	ComplexVector m_x_cache;
 
 public:
-	SparseGenComplexShiftSolve(const ConstGenericSparseMatrix& mat_) : m_mat(mat_), m_n(mat_.rows())
+	SparseGenComplexShiftSolve(ConstGenericSparseMatrix& mat_) : m_mat(mat_), m_n(mat_.rows())
 	{
 		if (mat_.rows() != mat_.cols())
 			throw std::invalid_argument("SparseGenRealShiftSolve: matrix must be square");

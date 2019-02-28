@@ -77,9 +77,6 @@
     <ClInclude Include="Program.h">
       <Filter>Header Files\Main</Filter>
     </ClInclude>
-    <ClInclude Include="Sweep.h">
-      <Filter>Header Files\Tools</Filter>
-    </ClInclude>
     <ClInclude Include="FileHandler.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
@@ -99,6 +96,9 @@
       <Filter>Header Files\Structs</Filter>
     </ClInclude>
     <ClInclude Include="SparseGenComplexShiftSolve.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Sweep.h">
       <Filter>Header Files\Tools</Filter>
     </ClInclude>
   </ItemGroup>

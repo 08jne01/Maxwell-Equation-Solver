@@ -48,12 +48,12 @@ void MaxwellSolver::condenseThread(SparseM &m1, std::vector<Triplet> &returnVec,
 	for (int l = 0; l < m1.outerSize(); l++)
 
 	{
-		for (Eigen::SparseMatrix<double>::InnerIterator it(m1, l); it; ++it)
+		for (Eigen::SparseMatrix<Complex>::InnerIterator it(m1, l); it; ++it)
 
 		{
 			int i = it.col() + lowJ;
 			int j = it.row() + lowI;
-			double val = it.value();
+			Complex val = it.value();
 			if (i < 2*m && i > -1 && j < 2*m && j > -1) returnVec.push_back(Triplet(j, i, val));
 		}
 	}
@@ -92,7 +92,7 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 }
 
-void MaxwellSolver::insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val)
+void MaxwellSolver::insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, Complex val)
 
 {
 	if (superI < m && superJ < m && superI > -1 && superJ > -1)
@@ -131,11 +131,24 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 	return Vector3(rx, ry, rz);
 }
 
+MaxwellSolver::Complex MaxwellSolver::sVal(double x, double l, double aMax, double sigmaMax)
+
+{
+	double a = 1. + aMax * pow(x / l, 3.);
+	double sigma = sigmaMax * pow(sin(PI*x / (2.*l)), 2.);
+	return Complex(a, a*sigma);
+}
+
 void MaxwellSolver::buildBoundaries()
 
 {
 	if (config.timers == 1) std::cout << "Building Boundary..." << std::endl;
 	Clock c;
+
+	Complex sx, sy;
+
+	double pmlSize = 10.;
+
 	for (int j = 0; j < n; j++)
 
 	{
@@ -143,11 +156,56 @@ void MaxwellSolver::buildBoundaries()
 
 		{
 			int superI = index(i, j);
+
+			if (i < pmlSize)
+
+			{
+				sx = sVal((double)i, pmlSize, 3., 1.);
+				//sx = Complex(1.0, 0.0);
+			}
+
+			else if (i > n - pmlSize - 2.)
+
+			{
+				sx = sVal((double)i - (double)n + pmlSize, pmlSize, 3., 1.);
+			}
+
+			else
+
+			{
+				sx = Complex(1.0, 0.0);
+			}
+
+			if (j < pmlSize)
+
+			{
+				sy = sVal((double)j, pmlSize, 3., 1.);
+			}
+
+			else if (j > n - pmlSize - 2.)
+
+			{
+				sy = sVal((double)j - (double)n + pmlSize, pmlSize, 3., 1.);
+			}
+
+			else
+
+			{
+				sy = Complex(1.0, 0.0);
+			}
+
+
 			//Set Permativities
 			Vector3 permVec = getPermComponent(i, j);
-			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
-			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
-			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
+
+			coeffsPermX.push_back(Triplet(superI, superI, permVec.x*sy/sx));
+			coeffsPermY.push_back(Triplet(superI, superI, permVec.y*sx/sy));
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1. / (permVec.z*sx*sy)));
+
+			coeffsPermHX.push_back(Triplet(superI, superI, sy / sx));
+			coeffsPermHY.push_back(Triplet(superI, superI, sx / sy));
+			coeffsPermHZInverse.push_back(Triplet(superI, superI, 1. / (sx*sy)));
+
 			//Set Window Boundary conditions
 			
 
@@ -207,10 +265,10 @@ void MaxwellSolver::buildBoundaries()
 
 			*/
 
-			insertCoeff(coeffsUx, superI, superI, -1.0);
-			if ((superI + 1) % n != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
-			insertCoeff(coeffsUy, superI, superI, -1.0);
-			insertCoeff(coeffsUy, superI, superI+n, 1.0);
+			insertCoeff(coeffsUx, superI, superI, Complex(-1.0, 0.0));
+			if ((superI + 1) % n != 0) insertCoeff(coeffsUx, superI, superI + 1, Complex(1.0, 0.0));
+			insertCoeff(coeffsUy, superI, superI, Complex(-1.0,0.0));
+			insertCoeff(coeffsUy, superI, superI+n, Complex(1.0, 0.0));
 			
 
 			//if (j != 0) insertCoeff(coeffsIdentity, superI, superI, 1.0);
@@ -227,7 +285,7 @@ void MaxwellSolver::buildMatrix()
 	Clock c;
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
 			Vx(m, m), Vy(m, m), erx(m, m),
-			ery(m, m), erzI(m, m), I(m, m), I_sym(m,m);
+			ery(m, m), erzI(m, m), urx(m,m), ury(m,m), urzI(m,m), I(m, m), I_sym(m,m);
 	//Resize boundary matrices
 	Ux.resize(m, m);
 	Uy.resize(m, m);
@@ -280,15 +338,17 @@ void MaxwellSolver::buildMatrix()
 
 	double kSqr = k * k;
 
-	Pxx = I*(-(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr));
-	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I_sym + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
-	Pxy = I*((Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr);
-	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I_sym + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
+	Pxx = I * (-(Ux*erzI*Vy*Vx*Uy) / kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy) / kSqr));
+	Pyy = -(Uy*erzI*Vx*Vy*Ux) / kSqr + (kSqr*I_sym + Uy * erzI*Vy)*(ery + (Vx*Ux) / kSqr);
+	Pxy = I * ((Ux * erzI*Vy)*(ery + (Vx*Ux) / kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux)) / kSqr);
+	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy) / kSqr) - ((kSqr*I_sym + Uy * erzI*Vy)*(Vx*Uy)) / kSqr;
 
-	Pxx.prune(1.0 / k);
-	Pyy.prune(1.0 / k);
-	Pxy.prune(1.0 / k);
-	Pyx.prune(1.0 / k);
+
+
+	//Pxx.prune(1.0 / k);
+	//Pyy.prune(1.0 / k);
+	//Pxy.prune(1.0 / k);
+	//Pyx.prune(1.0 / k);
 
 	//std::cout << Pxx << std::endl;
 	//std::cout << Pxy << std::endl;
@@ -317,10 +377,10 @@ int MaxwellSolver::findModes(double sigma)
 	{
 		sigma = k * k * perm*1.0;
 	}
-	//SparseGenComplexShiftSolve<double> op(matrix);
-	Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10
-	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1 + n/10, sigma);
-	//Spectra::GenEigsComplexShiftSolver<double, Spectra::LARGEST_MAGN, SparseGenComplexShiftSolve<double>> eigs(&op, nev, 2 * nev + 1 + n / 10, sigma, 0.0);
+	SparseGenComplexShiftSolve<double> op(matrix);
+	//Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10
+	//Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1 + n/10, sigma);
+	Spectra::GenEigsComplexShiftSolver<double, Spectra::LARGEST_MAGN, SparseGenComplexShiftSolve<double>> eigs(&op, nev, 2 * nev + 1 + n / 10, sigma, 0.0);
 	//Initalise eigen solver and compute
 	eigs.init();
 	int nconv = eigs.compute();
@@ -330,8 +390,8 @@ int MaxwellSolver::findModes(double sigma)
 
 	{
 		std::cout << "Successful!" << std::endl;
-		eigenVals = eigs.eigenvalues().real();
-		eigenVectors = eigs.eigenvectors().real();
+		eigenVals = eigs.eigenvalues();
+		eigenVectors = eigs.eigenvectors();
 		if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 		return EXIT_SUCCESS;
 	}
@@ -406,14 +466,16 @@ Field MaxwellSolver::constructField()
 
 	double k0 = k;
 
+	Complex im = Complex(0.0, 1.0);
+
 	//Construct field components
 	for (int i = 0; i < outer; i++)
 
 	{
-		field.Hz.col(i) = (-1 / k0)*(-Uy * (field.Ex.col(i)) + Ux * (field.Ey.col(i)));
-		field.Hx.col(i) = (1 / sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
-		field.Hy.col(i) = (1 / sqrt(abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
-		field.Ez.col(i) = (1 / k0)*erzI*(-Vy * field.Hx.col(i) + Vx * field.Hy.col(i));
+		field.Hz.col(i) = (- im/ k0)*(-Uy *(field.Ex.col(i)) + Ux * (field.Ey.col(i)));
+		field.Hx.col(i) = (- im/ sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - im*k0 * ery*field.Ey.col(i));
+		field.Hy.col(i) = (- im/ sqrt(abs(eigenVals[i])))*(im*k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
+		field.Ez.col(i) = (im / k0)*erzI*(-Vy * field.Hx.col(i) + Vx * field.Hy.col(i));
 
 		//field.Hz.col(i).normalize();
 		//field.Hx.col(i).normalize();

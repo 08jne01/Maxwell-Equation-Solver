@@ -7,10 +7,11 @@
 #include <Spectra/GenEigsComplexShiftSolver.h>
 #include <Spectra/MatOp/SparseGenMatProd.h>
 #include <Spectra/MatOp/SparseGenRealShiftSolve.h>
+#include "SparseGenComplexShiftSolve.h"
+#include "Field.h"
 #include "Header.h"
 #include "Clock.h"
 #include "Vector3.h"
-#include "Field.h"
 #include "Config.h"
 
 class MaxwellSolver
@@ -21,14 +22,18 @@ public:
 	MaxwellSolver(Config conf); //Size of one side of grid
 	~MaxwellSolver();
 
-	typedef Eigen::Triplet<double> Triplet;
-	typedef Eigen::SparseMatrix<double> SparseM;
+	typedef std::complex<double> Complex;
+	typedef Eigen::Triplet<Complex> Triplet;
+	typedef Eigen::SparseMatrix<Complex> SparseM;
+	typedef Eigen::Matrix<Complex, Eigen::Dynamic, Eigen::Dynamic> mat;
+	typedef Eigen::Matrix<Complex, Eigen::Dynamic, 1> vec;
 
 	//Tools
 	int index(int i, int j);
+	Complex sVal(double x, double l, double aMax, double sigmaMax);
 	void condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4, SparseM &returnMatrix);
 	void condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ);
-	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val);
+	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, Complex val);
 	Vector3 getPermComponent(int i, int j);
 
 	//Initialisers
@@ -57,12 +62,18 @@ private:
 	std::vector<Triplet> coeffsPermX;
 	std::vector<Triplet> coeffsPermY;
 	std::vector<Triplet> coeffsPermZInverse;
+
+	std::vector<Triplet> coeffsPermHX;
+	std::vector<Triplet> coeffsPermHY;
+	std::vector<Triplet> coeffsPermHZInverse;
+
+
 	std::vector<Triplet> coeffsIdentity;
 	//Matrices
 	SparseM matrix, Ux, Uy, Ux_sym, Uy_sym;
 	//Results
-	Eigen::VectorXd eigenVals;
-	Eigen::MatrixXd eigenVectors;
+	vec eigenVals;
+	mat eigenVectors;
 
 	int n, m, numEigs, nConv;
 	double k, deltaX, deltaY, perm;

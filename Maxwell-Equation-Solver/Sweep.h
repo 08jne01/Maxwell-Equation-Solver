@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include <vector>
 #include "Vector2.h"
@@ -23,3 +24,4 @@ private:
 	std::vector<double> drawGeometry;
 	std::vector<Vector2> neff;
 };
+*/

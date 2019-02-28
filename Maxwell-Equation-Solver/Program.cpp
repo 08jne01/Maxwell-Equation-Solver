@@ -36,10 +36,10 @@ int Program::mainLoop()
 	if (willSweep == 0)
 
 	{
-		Sweep sweep(0, fileHandler);
-		std::vector<Vector2> neff;
-		sweep.wavelengthTrace(1.50e-2, 1.0e-2, 10);
-		sweep.outputData("Output_Data/Sweep.dat");
+		//Sweep sweep(0, fileHandler);
+		//std::vector<Vector2> neff;
+		//sweep.wavelengthTrace(1.50e-2, 1.0e-2, 10);
+		//sweep.outputData("Output_Data/Sweep.dat");
 	}
 
 	else
@@ -137,7 +137,7 @@ int Program::calculate()
 
 	//Find the modes
 	//pow(k*0.99999, 2.0)
-	if (max.findModes(pow(k*0.99999999, 2.)) == EXIT_SUCCESS)
+	if (max.findModes(pow(k*1.45, 2.)) == EXIT_SUCCESS)
 
 	{
 		field = max.constructField();
@@ -160,10 +160,10 @@ void Program::setMode(int mode)
 	std::cout << "Displaying " << field.getFieldName(displayField) << " Component" << std::endl;
 	std::cout << "Eigen Value: " << field.eigenValues[mode] << std::endl;
 	
-	std::cout << std::setprecision(10) << "neff: " << sqrt(abs((double)field.eigenValues[mode])) / (double)field.k << std::endl;
+	std::cout << std::setprecision(10) << "neff: " << sqrt(std::abs(field.eigenValues[mode])) / (double)field.k << std::endl;
 	points.clear();
 	std::vector<double> normal;
-	Eigen::VectorXd vec = field.getField(displayField).col(mode);
+	Eigen::VectorXd vec = field.getField(displayField).col(mode).real();
 	normalise(vec, normal);
 	//Sets color scheme
 	for (int i = 0; i < w; i++)

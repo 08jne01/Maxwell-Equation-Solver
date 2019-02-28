@@ -1,6 +1,7 @@
 #pragma once
 #include <Eigen/SparseCore>
 #include <string>
+#include <Complex>
 
 #define FIELD_EX 0
 #define FIELD_EY 1
@@ -13,8 +14,9 @@ class Field
 
 {
 public:
-	typedef Eigen::MatrixXd mat;
-	typedef Eigen::VectorXd vec;
+	typedef std::complex<double> Complex;
+	typedef Eigen::Matrix<Complex, Eigen::Dynamic, Eigen::Dynamic> mat;
+	typedef Eigen::Matrix<Complex, Eigen::Dynamic, 1> vec;
 
 	struct UndefinedField;
 

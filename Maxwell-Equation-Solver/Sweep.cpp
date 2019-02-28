@@ -1,5 +1,5 @@
 #include "Sweep.h"
-
+/*
 Sweep::Sweep(int type, FileHandler& fHandler): fileHandler(fHandler)
 
 {
@@ -170,3 +170,4 @@ void Sweep::geometryTrace(std::vector<Vector2>& neff)
 {
 
 }
+*/
