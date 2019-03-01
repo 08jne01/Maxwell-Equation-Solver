@@ -1,7 +1,7 @@
 #include "Program.h"
 //General program class
 Program::Program(int width, int height, std::string filename): 
-	w(width), h(height), displayField(0), modeSet(0), gOn(0), fileHandler(filename)
+	w(width), h(height), displayField(0), modeSet(0), gOn(0), fileHandler(filename), realImag(0)
 
 {
 	eigs = fileHandler.config.numModes;
@@ -137,7 +137,7 @@ int Program::calculate()
 
 	//Find the modes
 	//pow(k*0.99999, 2.0)
-	if (max.findModes(pow(k*1.45, 2.)) == EXIT_SUCCESS)
+	if (max.findModes(pow(k*0.99999, 2.)) == EXIT_SUCCESS)
 
 	{
 		field = max.constructField();
@@ -163,7 +163,9 @@ void Program::setMode(int mode)
 	std::cout << std::setprecision(10) << "neff: " << sqrt(std::abs(field.eigenValues[mode])) / (double)field.k << std::endl;
 	points.clear();
 	std::vector<double> normal;
-	Eigen::VectorXd vec = field.getField(displayField).col(mode).real();
+	Eigen::VectorXd vec;
+	if (realImag == 0) vec = field.getField(displayField).col(mode).real();
+	else vec = field.getField(displayField).col(mode).imag();
 	normalise(vec, normal);
 	//Sets color scheme
 	for (int i = 0; i < w; i++)
@@ -299,12 +301,12 @@ void Program::writeFields()
 		{
 
 			file << i*dx << "," << j*dy << ","
-				<< field.Ex.col(mode)[j + size * i] << ","
-				<< field.Ey.col(mode)[j + size * i] << ","
-				<< field.Ez.col(mode)[j + size * i] << ","
-				<< field.Hx.col(mode)[j + size * i] << ","
-				<< field.Hy.col(mode)[j + size * i] << ","
-				<< field.Hz.col(mode)[j + size * i] << std::endl;
+				<< field.Ex.col(mode)[j + size * i].real() << ","
+				<< field.Ey.col(mode)[j + size * i].real() << ","
+				<< field.Ez.col(mode)[j + size * i].real() << ","
+				<< field.Hx.col(mode)[j + size * i].real() << ","
+				<< field.Hy.col(mode)[j + size * i].real() << ","
+				<< field.Hz.col(mode)[j + size * i].real() << std::endl;
 		}
 	}
 
@@ -376,6 +378,26 @@ void Program::keyCallBack(sf::Event events)
 
 			{
 				window.close();
+				break;
+			}
+
+			case sf::Keyboard::BackSpace:
+
+			{
+				if (realImag == 0)
+
+				{
+					realImag = 1;
+					modeSet = 0;
+					std::cout << "Switching to Imag" << std::endl;
+				}
+				else
+
+				{
+					realImag = 0;
+					modeSet = 0;
+					std::cout << "Switching to Real" << std::endl;
+				}
 				break;
 			}
 		}

@@ -134,7 +134,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 MaxwellSolver::Complex MaxwellSolver::sVal(double x, double l, double aMax, double sigmaMax)
 
 {
-	double a = 1. + aMax * pow(x / l, 3.);
+	double a = 1. + aMax * pow(x / l, 2.5);
 	double sigma = sigmaMax * pow(sin(PI*x / (2.*l)), 2.);
 	return Complex(a, a*sigma);
 }
@@ -157,17 +157,19 @@ void MaxwellSolver::buildBoundaries()
 		{
 			int superI = index(i, j);
 
-			if (i < pmlSize)
+			if (j < pmlSize)
 
 			{
-				sx = sVal((double)i, pmlSize, 3., 1.);
+				sx = sVal(-(double)j + pmlSize - 1., pmlSize, 0.1, 1.);
+				//std::cout << "left " << sx << std::endl;
 				//sx = Complex(1.0, 0.0);
 			}
 
-			else if (i > n - pmlSize - 2.)
+			else if (j > n - pmlSize - 1.)
 
 			{
-				sx = sVal((double)i - (double)n + pmlSize, pmlSize, 3., 1.);
+				sx = sVal((double)j - (double)n + pmlSize, pmlSize, 0.1, 1.);
+				//std::cout << "right " << sx << std::endl;
 			}
 
 			else
@@ -176,16 +178,17 @@ void MaxwellSolver::buildBoundaries()
 				sx = Complex(1.0, 0.0);
 			}
 
-			if (j < pmlSize)
+			if (i < pmlSize)
 
 			{
-				sy = sVal((double)j, pmlSize, 3., 1.);
+				sy = sVal(-(double)i + pmlSize, pmlSize, 0.1, 1.);
+				
 			}
 
-			else if (j > n - pmlSize - 2.)
+			else if (i > n - pmlSize - 1.)
 
 			{
-				sy = sVal((double)j - (double)n + pmlSize, pmlSize, 3., 1.);
+				sy = sVal((double)i - (double)n + pmlSize, pmlSize, 0.1, 1.);
 			}
 
 			else
@@ -194,17 +197,19 @@ void MaxwellSolver::buildBoundaries()
 				sy = Complex(1.0, 0.0);
 			}
 
+			//sx = Complex(1.0, 0.0);
+			//sy = Complex(1.0, 0.0);
 
 			//Set Permativities
 			Vector3 permVec = getPermComponent(i, j);
 
-			coeffsPermX.push_back(Triplet(superI, superI, permVec.x*sy/sx));
-			coeffsPermY.push_back(Triplet(superI, superI, permVec.y*sx/sy));
-			coeffsPermZInverse.push_back(Triplet(superI, superI, 1. / (permVec.z*sx*sy)));
+			coeffsPermX.push_back(Triplet(superI, superI, permVec.x*pow(sy/sx, 2.0)));
+			coeffsPermY.push_back(Triplet(superI, superI, permVec.y*pow(sx/sy, 2.)));
+			coeffsPermZInverse.push_back(Triplet(superI, superI, 1. / (permVec.z*pow(sx*sy, 2.))));
 
-			coeffsPermHX.push_back(Triplet(superI, superI, sy / sx));
-			coeffsPermHY.push_back(Triplet(superI, superI, sx / sy));
-			coeffsPermHZInverse.push_back(Triplet(superI, superI, 1. / (sx*sy)));
+			//coeffsPermHX.push_back(Triplet(superI, superI, sy / sx));
+			//coeffsPermHY.push_back(Triplet(superI, superI, sx / sy));
+			//coeffsPermHZInverse.push_back(Triplet(superI, superI, 1. / (sx*sy)));
 
 			//Set Window Boundary conditions
 			
@@ -342,7 +347,6 @@ void MaxwellSolver::buildMatrix()
 	Pyy = -(Uy*erzI*Vx*Vy*Ux) / kSqr + (kSqr*I_sym + Uy * erzI*Vy)*(ery + (Vx*Ux) / kSqr);
 	Pxy = I * ((Ux * erzI*Vy)*(ery + (Vx*Ux) / kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux)) / kSqr);
 	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy) / kSqr) - ((kSqr*I_sym + Uy * erzI*Vy)*(Vx*Uy)) / kSqr;
-
 
 
 	//Pxx.prune(1.0 / k);

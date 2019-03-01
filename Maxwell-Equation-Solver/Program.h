@@ -26,7 +26,7 @@ private:
 	
 	sf::RenderWindow window; //Sfml window
 	sf::VertexArray points, geometry; //Array of points
-	int w, h, eigs, displayField, mode, modeSet, gOn; //Width, height
+	int w, h, eigs, displayField, mode, modeSet, gOn, realImag; //Width, height
 	std::vector<Eigen::MatrixXd> fieldComponents;
 	Field field;
 	Eigen::VectorXd eigenValues;

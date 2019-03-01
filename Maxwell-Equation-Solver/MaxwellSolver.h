@@ -57,6 +57,8 @@ private:
 	std::vector<Triplet> coeffsUy;
 	std::vector<Triplet> coeffsUxSym;
 	std::vector<Triplet> coeffsUySym;
+	std::vector<Triplet> coeffsUxd;
+	std::vector<Triplet> coeffsUyd;
 	//std::vector<Triplet> coeffsVx;
 	//std::vector<Triplet> coeffsVy;
 	std::vector<Triplet> coeffsPermX;
