@@ -1,31 +1,49 @@
 #include "Program.h"
 
-int main()
+int main(int argc, char* argv[])
 
 {
-	std::string filename;
+	std::string filename = "Resources/config.ini";
 
 	int width = 1000;
+	int willSweep = 0;
 
 	//std::cout << Eigen::nbThreads() << std::endl;
 
-	std::cout << "Config file (blank for default):";
-	if (std::cin.peek() == '\n')
+
+	std::string configCommand = "-config";
+	std::string sweepCommand = "-sweep";
+
+	if (argc != 0)
 
 	{
-		filename = "Resources/config.ini";
-	}
+		for (int i = 0; i < argc; i++)
 
-	else
+		{
+			if (argv[i] == sweepCommand)
 
-	{
-		std::string file;
-		std::cin >> file;
-		filename = "Resources/" + file;
+			{
+				willSweep = 1;
+			}
+
+			if (argv[i] == configCommand)
+
+			{
+				std::cout << "Config file (blank for default):";
+				if (std::cin.peek() != '\n')
+
+				{
+					std::string file;
+					std::cin >> file;
+					filename = "Resources/" + file;
+				}
+			}
+		}
 	}
 
 	sf::err().rdbuf(NULL);
-	Program p(width, width, filename);
-
-	return p.mainLoop();
+	Program p(width, width, filename, willSweep);
+	p.mainLoop();
+	system("PAUSE");
+	return 0;
 }

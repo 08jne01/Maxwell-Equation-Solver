@@ -82,7 +82,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 		int success;
 		//if (start != 0) success = solver.findModes(prevEig);
 		//else success = solver.findModes(pow(0.99999999 * 2.*PI / wavelength, 2.));
-		success = solver.findModes(pow(0.99999999 * 2.*PI / wavelength, 2.));
+		success = solver.findModes(pow(0.9999999 * 2.*PI / wavelength, 2.));
 
 		if (success == EXIT_SUCCESS)
 
@@ -130,7 +130,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 			double neffVal = sqrt(abs(prevField.eigenValues[prevMode])) / prevField.k;
 			std::cout << std::setprecision(10) << "neff: " << neffVal << std::endl;
 			neff.push_back(Vector2(wavelength, neffVal));
-			std::cout << "Progress: " << (double)i / (double)steps << std::endl;
+			std::cout << "Progress: " << (((double)i + 1.) / (double)steps)*100. << " %" << std::endl;
 			std::cout << "========================" << std::endl;
 		}
 	}

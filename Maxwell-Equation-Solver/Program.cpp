@@ -1,7 +1,7 @@
 #include "Program.h"
 //General program class
-Program::Program(int width, int height, std::string filename): 
-	w(width), h(height), displayField(0), modeSet(0), gOn(0), fileHandler(filename)
+Program::Program(int width, int height, std::string filename, int sweep): 
+	w(width), h(height), displayField(0), modeSet(0), gOn(0), fileHandler(filename), willSweep(sweep)
 
 {
 	eigs = fileHandler.config.numModes;
@@ -31,15 +31,12 @@ int Program::mainLoop()
 		return EXIT_FAILURE;
 	}
 
-	int willSweep = 1;
-
-	if (willSweep == 0)
+	if (willSweep == 1)
 
 	{
-		Sweep sweep(0, fileHandler);
-		std::vector<Vector2> neff;
-		sweep.wavelengthTrace(1.50e-2, 1.0e-2, 10);
-		sweep.outputData("Output_Data/Sweep.dat");
+		Sweep sweep(fileHandler.config.sweepType, fileHandler);
+		sweep.wavelengthTrace(fileHandler.config.sweepStart, fileHandler.config.sweepEnd, fileHandler.config.sweepPoints);
+		sweep.outputData(fileHandler.config.sweepFilename);
 	}
 
 	else
@@ -97,7 +94,6 @@ int Program::mainLoop()
 
 		}
 	}
-	system("PAUSE");
 	return EXIT_SUCCESS;
 }
 
@@ -137,7 +133,7 @@ int Program::calculate()
 
 	//Find the modes
 	//pow(k*0.99999, 2.0)
-	if (max.findModes(pow(k*0.99999999, 2.)) == EXIT_SUCCESS)
+	if (max.findModes(pow(k*0.9999999, 2.)) == EXIT_SUCCESS)
 
 	{
 		field = max.constructField();
@@ -148,7 +144,6 @@ int Program::calculate()
 	else
 
 	{
-		system("PAUSE");
 		return EXIT_FAILURE;
 	}
 }

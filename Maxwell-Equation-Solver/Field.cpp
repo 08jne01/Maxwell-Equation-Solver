@@ -16,7 +16,6 @@ Field::Field()
 
 }
 
-
 Field::Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz) :
 	Ex(ex), Ey(ey), Ez(ez),
 	Hx(hx), Hy(hy), Hz(hz)

@@ -20,4 +20,9 @@ struct Config
 	int convergance;
 	std::string fiber;
 	int timers;
+	int sweepType;
+	double sweepStart;
+	double sweepEnd;
+	int sweepPoints;
+	std::string sweepFilename;
 };
