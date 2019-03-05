@@ -365,7 +365,7 @@ void Program::keyCallBack(sf::Event events)
 				break;
 			}
 
-			case sf::Keyboard::Enter:
+			case sf::Keyboard::Return:
 
 			{
 				std::cout << "Outputing Current Fields..." << std::endl;
