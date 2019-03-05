@@ -11,9 +11,33 @@ Dependancies:
 - Eigen3 for sparse and dense matrices
 - Spectra for sparse eigen solving
 
-**Install (linux)**
+**Install and Compile(linux)**
 
-Not supported yet.
+```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
+
+```sudo apt-get install libsfml-dev```
+
+```git clone https://github.com/eigenteam/eigen-git-mirror.git```
+
+```git clone https://github.com/yixuan/spectra.git```
+
+```cd spectra/include/```
+
+```sudo mv Spectra /usr/include/```
+
+```cd ../..```
+
+```cd eigen-git-mirror ```
+
+```sudo mv Eigen /usr/include/```
+
+```cd ..```
+
+```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
+
+```g++ -o max.out main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
+
+
 
 **Install (windows)**
 
@@ -31,6 +55,11 @@ Once the program has converged a window will open with your modes.
 - Left and Right will change the current selected field.
 - Space will display the imported fiber geometry.
 - Enter will export the current mode and all fields to a file in Output_Data/Field_Components_Mode_[CURRENT SELECTED MODE].dat
+
+Commands:
+- ```-sweep``` sweep the fibre according to the config.
+- ```-neff``` change the maximum refractive index for this run.
+- ```-config``` change the config from the default one.
 
 Geometry is imported by bitmap (More accurate methods will be added in future):
 - Make sure your bitmap dimensions are divisible by 4.
