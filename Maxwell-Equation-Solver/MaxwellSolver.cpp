@@ -411,8 +411,8 @@ Field MaxwellSolver::constructField()
 
 	{
 		field.Hz.col(i) = (-1 / k0)*(-Uy * (field.Ex.col(i)) + Ux * (field.Ey.col(i)));
-		field.Hx.col(i) = (1 / sqrt(abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
-		field.Hy.col(i) = (1 / sqrt(abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
+		field.Hx.col(i) = (1 / sqrt(std::abs(eigenVals[i])))*(Vx*field.Hz.col(i) - k0 * ery*field.Ey.col(i));
+		field.Hy.col(i) = (1 / sqrt(std::abs(eigenVals[i])))*(k0*erx*field.Ex.col(i) + Vy * field.Hz.col(i));
 		field.Ez.col(i) = (1 / k0)*erzI*(-Vy * field.Hx.col(i) + Vx * field.Hy.col(i));
 
 		//field.Hz.col(i).normalize();

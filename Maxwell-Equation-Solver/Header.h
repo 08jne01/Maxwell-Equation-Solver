@@ -5,6 +5,7 @@
 //#include <Spectra/GenEigsComplexShiftSolver.h>
 //#include <Spectra/MatOp/SparseGenMatProd.h>
 #include <iomanip>
+#include <cmath>
 
 #define PI 3.14159
 

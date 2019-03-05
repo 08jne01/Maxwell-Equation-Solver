@@ -164,7 +164,7 @@ void Program::setMode(int mode)
 	std::cout << "Displaying " << field.getFieldName(displayField) << " Component" << std::endl;
 	std::cout << "Eigen Value: " << field.eigenValues[mode] << std::endl;
 	
-	std::cout << std::setprecision(10) << "neff: " << sqrt(abs((double)field.eigenValues[mode])) / (double)field.k << std::endl;
+	std::cout << std::setprecision(10) << "neff: " << sqrt(std::abs((double)field.eigenValues[mode])) / (double)field.k << std::endl;
 	points.clear();
 	std::vector<double> normal;
 	Eigen::VectorXd vec = field.getField(displayField).col(mode);
@@ -177,7 +177,7 @@ void Program::setMode(int mode)
 
 		{
 			double val = getValue(normal, sqrt(vec.size()), i, j, w, w);
-			double colorR, colorB, colorG;
+			int colorR, colorB, colorG;
 			if (val < 0.0)
 
 			{
@@ -250,10 +250,10 @@ void Program::normalise(Eigen::VectorXd& vec, std::vector<double>& normalisedVal
 	for (int i = 0; i < vec.size(); i++)
 
 	{
-		if (abs(vec[i]) > max)
+		if (std::abs(vec[i]) > max)
 
 		{
-			max = abs(vec[i]);
+			max = std::abs(vec[i]);
 		}
 	}
 

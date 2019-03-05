@@ -52,7 +52,7 @@ double Sweep::overlap(Field& field1, int mode1, Field& field2, int mode2, Maxwel
 		sum22 += xSum22;
 	}
 
-	return abs(sum12*sum21)/abs(sum22*sum11);
+	return std::abs(sum12*sum21)/std::abs(sum22*sum11);
 }
 
 void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
@@ -125,9 +125,9 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 				
 			}
 			std::cout << "Best mode: " << prevMode << std::endl;
-			prevEig = abs(prevField.eigenValues[prevMode]);
+			prevEig = std::abs(prevField.eigenValues[prevMode]);
 			//std::cout << prevEig << std::endl;
-			double neffVal = sqrt(abs(prevField.eigenValues[prevMode])) / prevField.k;
+			double neffVal = sqrt(std::abs(prevField.eigenValues[prevMode])) / prevField.k;
 			std::cout << std::setprecision(10) << "neff: " << neffVal << std::endl;
 			neff.push_back(Vector2(wavelength, neffVal));
 			std::cout << "Progress: " << (((double)i + 1.) / (double)steps)*100. << " %" << std::endl;
