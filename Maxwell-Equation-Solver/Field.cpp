@@ -1,14 +1,6 @@
 #include "Field.h"
 
-struct Field::UndefinedField : public std::exception
 
-{
-	const char *what() const throw()
-
-	{
-		return "Exception: No field with that index!";
-	}
-};
 
 Field::Field()
 

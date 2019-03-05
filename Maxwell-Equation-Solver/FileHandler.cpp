@@ -47,7 +47,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 14)
+	if (conf.size() != 15)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -65,14 +65,15 @@ void FileHandler::readConfig(std::string filename)
 		conf[3] >> config.numPointStructure;
 		conf[4] >> config.wavelength;
 		conf[5] >> config.maxIndex;
-		conf[6] >> config.convergance;
-		conf[7] >> config.fiber;
-		conf[8] >> config.timers;
-		conf[9] >> config.sweepType;
-		conf[10] >> config.sweepStart;
-		conf[11] >> config.sweepEnd;
-		conf[12] >> config.sweepPoints;
-		conf[13] >> config.sweepFilename;
+		conf[6] >> config.neffGuess;
+		conf[7] >> config.convergance;
+		conf[8] >> config.fiber;
+		conf[9] >> config.timers;
+		conf[10] >> config.sweepType;
+		conf[11] >> config.sweepStart;
+		conf[12] >> config.sweepEnd;
+		conf[13] >> config.sweepPoints;
+		conf[14] >> config.sweepFilename;
 	}
 }
 

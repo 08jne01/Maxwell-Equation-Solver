@@ -2,18 +2,16 @@
 //#include "Header.h"
 #include <SFML/Graphics.hpp>
 #include "FileHandler.h"
-#include "MaxwellSolver.h"
 #include "Sweep.h"
 #include "Clock.h"
 
 //Important to have class for main program to avoid global definition of variables which is in general bad.
-
 class Program
 
 {
 public:
 	
-	Program(int width, int height, std::string filename, int sweep); //Only need 1 constructor since we will call this once
+	Program(int width, int height, std::string filename, int sweep, int changeneff, int neff); //Only need 1 constructor since we will call this once
 	int mainLoop(); //Mainloop for program
 	void draw(); //Draw Call
 	int calculate(); //Calculate

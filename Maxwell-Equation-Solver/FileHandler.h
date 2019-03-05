@@ -1,9 +1,9 @@
 #pragma once
-#include <string>
 #include <fstream>
 #include <sstream>
 #include <vector>
 #include <iostream>
+#include <cstring>
 #include "Config.h"
 
 //Class for handling file input and output

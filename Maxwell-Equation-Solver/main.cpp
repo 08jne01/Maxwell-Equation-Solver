@@ -7,12 +7,15 @@ int main(int argc, char* argv[])
 
 	int width = 1000;
 	int willSweep = 0;
+	double neff = 1.45;
+	int willUseneff = 0;
 
 	//std::cout << Eigen::nbThreads() << std::endl;
 
 
 	std::string configCommand = "-config";
 	std::string sweepCommand = "-sweep";
+	std::string neffCommand = "-neff";
 
 	if (argc != 0)
 
@@ -38,11 +41,25 @@ int main(int argc, char* argv[])
 					filename = "Resources/" + file;
 				}
 			}
+
+			if (argv[i] == neffCommand)
+
+			{
+				std::cout << "neff (blank for default): ";
+				if (std::cin.peek() != '\n')
+
+				{
+					double temp;
+					std::cin >> temp;
+					neff = temp;
+					willUseneff = 1;
+				}
+			}
 		}
 	}
 
 	sf::err().rdbuf(NULL);
-	Program p(width, width, filename, willSweep);
+	Program p(width, width, filename, willSweep, willUseneff, neff);
 	p.mainLoop();
 	system("PAUSE");
 	return 0;

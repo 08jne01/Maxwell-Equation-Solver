@@ -16,8 +16,6 @@ public:
 	typedef Eigen::MatrixXd mat;
 	typedef Eigen::VectorXd vec;
 
-	struct UndefinedField;
-
 	Field();
 	Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz);
 	mat getField(int field);
@@ -38,6 +36,16 @@ public:
 	double dy;
 
 	std::string fieldNames[6] = { "Ex", "Ey", "Ez", "Hx", "Hy", "Hz" };
+
+	struct UndefinedField : public std::exception
+
+	{
+		const char *what() const throw()
+
+		{
+			return "Exception: No field with that index!";
+		}
+	};
 
 private:
 };

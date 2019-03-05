@@ -15,6 +15,6 @@ void Clock::reset()
 double Clock::elapsed()
 
 {
-	return clock() - start;
+	return 1000*(clock() - start) / CLOCKS_PER_SEC;
 }
 

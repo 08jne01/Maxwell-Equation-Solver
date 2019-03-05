@@ -1,11 +1,17 @@
 #include "Program.h"
 //General program class
-Program::Program(int width, int height, std::string filename, int sweep): 
+Program::Program(int width, int height, std::string filename, int sweep, int changeneff, int neff): 
 	w(width), h(height), displayField(0), modeSet(0), gOn(0), fileHandler(filename), willSweep(sweep)
 
 {
 	eigs = fileHandler.config.numModes;
 	points.setPrimitiveType(sf::Points);
+
+	if (changeneff == 1)
+
+	{
+		fileHandler.config.neffGuess = neff;
+	}
 
 	std::cout << "=====================" << std::endl;
 	std::cout << "Starting Values" << std::endl;

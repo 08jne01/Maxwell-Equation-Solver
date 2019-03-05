@@ -17,6 +17,7 @@ struct Config
 	double numPointStructure;
 	double wavelength;
 	double maxIndex;
+	double neffGuess;
 	int convergance;
 	std::string fiber;
 	int timers;
