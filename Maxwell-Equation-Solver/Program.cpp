@@ -7,6 +7,9 @@ Program::Program(int width, int height, std::string filename, int sweep, int cha
 	eigs = fileHandler.config.numModes;
 	points.setPrimitiveType(sf::Points);
 
+	w = fileHandler.config.screenSize;
+	h = fileHandler.config.screenSize;
+
 	if (changeneff == 1)
 
 	{

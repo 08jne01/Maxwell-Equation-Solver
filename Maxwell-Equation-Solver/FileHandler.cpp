@@ -47,7 +47,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 15)
+	if (conf.size() != 16)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -69,11 +69,12 @@ void FileHandler::readConfig(std::string filename)
 		conf[7] >> config.convergance;
 		conf[8] >> config.fiber;
 		conf[9] >> config.timers;
-		conf[10] >> config.sweepType;
-		conf[11] >> config.sweepStart;
-		conf[12] >> config.sweepEnd;
-		conf[13] >> config.sweepPoints;
-		conf[14] >> config.sweepFilename;
+		conf[10] >> config.screenSize;
+		conf[11] >> config.sweepType;
+		conf[12] >> config.sweepStart;
+		conf[13] >> config.sweepEnd;
+		conf[14] >> config.sweepPoints;
+		conf[15] >> config.sweepFilename;
 	}
 }
 

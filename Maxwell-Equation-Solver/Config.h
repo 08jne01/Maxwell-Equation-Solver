@@ -21,6 +21,7 @@ struct Config
 	int convergance;
 	std::string fiber;
 	int timers;
+	int screenSize;
 	int sweepType;
 	double sweepStart;
 	double sweepEnd;
