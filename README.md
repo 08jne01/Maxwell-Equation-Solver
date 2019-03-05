@@ -13,6 +13,8 @@ Dependancies:
 
 **Install and Compile(linux)**
 
+*Root Access*
+
 ```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
 
 ```sudo apt-get install libsfml-dev```
@@ -37,7 +39,49 @@ Dependancies:
 
 ```g++ -o max.out main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
 
+To then run the program just use: ```max.out``` followed by any of the commands listed in the commands section.
 
+*Non-root Access*
+
+```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
+
+```git clone https://github.com/eigenteam/eigen-git-mirror.git```
+
+```git clone https://github.com/yixuan/spectra.git```
+
+```wget https://en.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz```
+
+```tar -xvf SFML-2.5.1-linux-gcc-64-bit.tar.gz``` < check that it is the same file as the one you downloaded version may change.
+
+You can get the latest SFML from https://en.sfml-dev.org/download.php
+
+```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
+
+```rm -r lib```
+
+```cd include```
+
+```rm -r SFML```
+
+```cd ../../..```
+
+```cd SFML-2.5.1``` or whatever version you have
+
+```mv lib <Your_Directory_YouDownloaded_Maxwell_Solver_To>/Maxwell-Equation-Solver/Maxwell-Equation-Solver/```
+
+```cd include```
+
+```mv SFML <Your_Directory_YouDownloaded_Maxwell_Solver_To>/Maxwell-Equation-Solver/Maxwell-Equation-Solver/include/```
+
+```cd ..```
+
+```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
+
+```g++ -o max.out -I./include -L./lib -std=c++11 main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
+
+To then run the program just use: ```export LD_LIBRARY_PATH=./lib && ./max.out``` followed by any of the commands listed in the commands section.
+
+After the first run you can then use the ```./max.out``` alone to run it.
 
 **Install (windows)**
 
