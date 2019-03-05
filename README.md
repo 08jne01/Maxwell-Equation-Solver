@@ -45,10 +45,6 @@ To then run the program just use: ```max.out``` followed by any of the commands 
 
 ```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
 
-```git clone https://github.com/eigenteam/eigen-git-mirror.git```
-
-```git clone https://github.com/yixuan/spectra.git```
-
 ```wget https://en.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz```
 
 ```tar -xvf SFML-2.5.1-linux-gcc-64-bit.tar.gz``` < check that it is the same file as the one you downloaded version may change.
