@@ -139,7 +139,7 @@ int Program::calculate()
 
 	//Find the modes
 	//pow(k*0.99999, 2.0)
-	if (max.findModes(pow(k*0.9999999, 2.)) == EXIT_SUCCESS)
+	if (max.findModes(pow(k*fileHandler.config.neffGuess, 2.)) == EXIT_SUCCESS)
 
 	{
 		field = max.constructField();

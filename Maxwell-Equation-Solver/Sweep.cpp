@@ -82,7 +82,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 		int success;
 		//if (start != 0) success = solver.findModes(prevEig);
 		//else success = solver.findModes(pow(0.99999999 * 2.*PI / wavelength, 2.));
-		success = solver.findModes(pow(0.9999999 * 2.*PI / wavelength, 2.));
+		success = solver.findModes(pow(fileHandler.config.neffGuess * 2.*PI / wavelength, 2.));
 
 		if (success == EXIT_SUCCESS)
 

@@ -274,7 +274,7 @@ void MaxwellSolver::buildMatrix()
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
 	//I.setIdentity();
-	I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
+	//I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
 	I.setIdentity();
 	I_sym.setIdentity();
 
@@ -420,18 +420,6 @@ Field MaxwellSolver::constructField()
 		//field.Hy.col(i).normalize();
 		//field.Ez.col(i).normalize();
 	}
-
-	for (int i = 0; i < outer; i++)
-
-	{
-		field.Hz.col(i).normalize();
-		field.Hx.col(i).normalize();
-		field.Hy.col(i).normalize();
-		field.Ez.col(i).normalize();
-		field.Ex.col(i).normalize();
-		field.Ey.col(i).normalize();
-	}
-
 
 	//Clear boundary matrices used for last time
 	Ux.resize(0, 0);
