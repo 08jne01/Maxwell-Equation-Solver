@@ -20,8 +20,10 @@ void FileHandler::readConfig(std::string filename)
 	{
 		std::cout << "Failed to retrive config!" << std::endl;
 		std::string error;
-		char arr[20];
-		strerror_s(arr, errno);
+		//char arr[20];
+		//strerror_s(arr, errno);
+
+		char* arr = strerror(errno);
 
 		std::cout << "ERROR: " << arr << std::endl;
 		error = 1;
@@ -79,17 +81,23 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 {
 	//Allocate memory for filename and convert filename to char array so that string can be used
 	char *filenameCharArray = (char*)malloc(sizeof(char) * (config.fiber.size() + 1));
-	strcpy_s(filenameCharArray, config.fiber.size() + 1, config.fiber.c_str());
+	//strcpy_s(filenameCharArray, config.fiber.size() + 1, config.fiber.c_str());
+
+	strcpy(filenameCharArray, config.fiber.c_str());
+
 	//Open file and create write buffer
-	FILE *in;
-	fopen_s(&in, filenameCharArray, "rb");
+	//FILE *in;
+	FILE *in = fopen(filenameCharArray, "rb");
+	//fopen_s(&in, filenameCharArray, "rb");
 	unsigned char info[54];
-	fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
+	//fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
+	fread(info, 54 * sizeof(unsigned char), sizeof(unsigned char), in);
 	int width = *(int*)&info[18];
 	int height = *(int*)&info[22];
 	int size = 3 * width * height;
 	unsigned char* data = new unsigned char[size];
-	fread_s(data, size * sizeof(unsigned char), sizeof(unsigned char), size, in);
+	fread(data, size * sizeof(unsigned char), sizeof(unsigned char), in);
+	//fread_s(data, size * sizeof(unsigned char), sizeof(unsigned char), size, in);
 	fclose(in);
 	free(filenameCharArray);
 
