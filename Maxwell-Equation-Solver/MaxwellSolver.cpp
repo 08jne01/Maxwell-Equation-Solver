@@ -319,7 +319,7 @@ int MaxwellSolver::findModes(double sigma)
 	}
 	//SparseGenComplexShiftSolve<double> op(matrix);
 	Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10
-	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1 + n/10, sigma);
+	Spectra::GenEigsRealShiftSolver<double, Spectra::LARGEST_MAGN, Spectra::SparseGenRealShiftSolve<double>> eigs(&op, nev, 2*nev + 1, sigma);
 	//Spectra::GenEigsComplexShiftSolver<double, Spectra::LARGEST_MAGN, SparseGenComplexShiftSolve<double>> eigs(&op, nev, 2 * nev + 1 + n / 10, sigma, 0.0);
 	//Initalise eigen solver and compute
 	eigs.init();
