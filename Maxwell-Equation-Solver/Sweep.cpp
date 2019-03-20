@@ -19,13 +19,13 @@ double Sweep::overlap(Field& field1, int mode1, Field& field2, int mode2, Maxwel
 	double sum22 = 0.0;
 
 
-	int size = sqrt(field1.Ex.innerSize());
+	//int size = sqrt(field1.Ex.innerSize());
 
 
-	for (int i = 0; i < size; i += 1)
+	for (int i = 0; i < solver.nx; i += 1)
 
 	{
-		for (int j = 0; j < size; j += 1)
+		for (int j = 0; j < solver.ny; j += 1)
 
 		{
 
@@ -61,8 +61,10 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	double waveStep = (endWave - startWave) / (double)steps;
 	Clock clock;
 	std::cout << "Initialising Sweep..." << std::endl;
+	std::vector<double> perms;
+	fileHandler.getGeometry(perms, drawGeometry);
 	MaxwellSolver solver(fileHandler.config);
-	fileHandler.getGeometry(solver.perms, drawGeometry);
+	solver.perms = perms;
 	
 	
 

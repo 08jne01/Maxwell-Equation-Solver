@@ -51,8 +51,6 @@ int Program::mainLoop()
 	else
 
 	{
-
-
 		//Calculate based on inital settings
 		if (calculate() != EXIT_SUCCESS)
 
@@ -66,7 +64,7 @@ int Program::mainLoop()
 		//h = w;
 		//h = w;
 		//Create the window after calculation
-		window.create(sf::VideoMode(w, h), "Maxwell Equation Solver");
+		window.create(sf::VideoMode(w, h), "FDFD Maxwell Solver");
 
 		if (!window.isOpen())
 

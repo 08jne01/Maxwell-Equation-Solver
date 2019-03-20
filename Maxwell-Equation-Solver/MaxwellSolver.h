@@ -39,7 +39,7 @@ public:
 	Field constructField();
 
 	std::vector<double> perms;
-
+	int nx, ny;
 	//
 	//std::vector<double> geometry;
 
@@ -64,6 +64,6 @@ private:
 	Eigen::VectorXd eigenVals;
 	Eigen::MatrixXd eigenVectors;
 
-	int n, m, numEigs, nConv, nx, ny;
+	int n, m, numEigs, nConv;
 	double k, deltaX, deltaY, perm;
 };

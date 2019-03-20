@@ -5,9 +5,9 @@ import matplotlib
 
 data = []
 
-n_core = 1.45
+n_core = 3.55
 #n_clad = 1.222
-n_clad = 1.0
+n_clad = 1.45
 a = 5.e-5
 
 #def line(V, gamma):
@@ -47,8 +47,8 @@ def plot_sweep(filename, char, color):
 
 	#popt, pcov = curve_fit(line, V, b)
 	#plt.plot(V, line(V, *popt), 'k-', linewidth=2)
-	plt.plot(wavelength, b, color + char, markersize=10, markeredgewidth=3)
-	plt.plot(wavelength, b, color + '-', linewidth=2)
+	plt.plot(wavelength*(1.e+3), b, color + char, markersize=10, markeredgewidth=3)
+	plt.plot(wavelength*(1.e+3), b, color + '-', linewidth=2)
 	
 	
 filename = raw_input("Filename: ")
@@ -75,7 +75,8 @@ for i in range(0,num):
 
 
 
-plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
+#plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
+plt.xlabel("Wavlength in free space, $\lambda$ ($10^{-3}$)", fontsize=30)
 plt.ylabel("Normalised propagation constant, $b$", fontsize=30)
 #plt.xlim(0,12.4)
 #plt.ylim(0,1.0)
