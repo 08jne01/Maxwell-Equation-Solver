@@ -47,7 +47,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 16)
+	if (conf.size() != 17)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -74,7 +74,8 @@ void FileHandler::readConfig(std::string filename)
 		conf[12] >> config.sweepStart;
 		conf[13] >> config.sweepEnd;
 		conf[14] >> config.sweepPoints;
-		conf[15] >> config.sweepFilename;
+		conf[15] >> config.initMode;
+		conf[16] >> config.sweepFilename;
 	}
 }
 
@@ -96,6 +97,8 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 	fread(info, 54 * sizeof(unsigned char), sizeof(unsigned char), in);
 	int width = *(int*)&info[18];
 	int height = *(int*)&info[22];
+	config.pointsX = width;
+	config.pointsY = height;
 	int size = 3 * width * height;
 	unsigned char* data = new unsigned char[size];
 	fread(data, size * sizeof(unsigned char), sizeof(unsigned char), in);

@@ -64,6 +64,6 @@ private:
 	Eigen::VectorXd eigenVals;
 	Eigen::MatrixXd eigenVectors;
 
-	int n, m, numEigs, nConv;
+	int n, m, numEigs, nConv, nx, ny;
 	double k, deltaX, deltaY, perm;
 };

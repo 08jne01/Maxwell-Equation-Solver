@@ -20,7 +20,7 @@ public:
 	void normalise(Eigen::VectorXd& vec, std::vector<double>& normalisedVals);
 	void keyCallBack(sf::Event events);
 	double interpolate(double d1, double d2, double w);
-	double getValue(std::vector<double>& gridPoints, int sideLength, int x, int y, int w, int h); //
+	double getValue(std::vector<double>& gridPoints, int sideLengthX, int sideLengthY, int x, int y, int w, int h); //
 
 private:
 	

@@ -66,7 +66,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	
 	
 
-	int prevMode = 0;
+	int prevMode = fileHandler.config.initMode;
 	double prevEig;
 	int start = 0;
 	Field prevField, curField;

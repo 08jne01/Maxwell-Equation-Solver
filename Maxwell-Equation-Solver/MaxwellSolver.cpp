@@ -3,8 +3,12 @@
 MaxwellSolver::MaxwellSolver(Config conf): config(conf)
 
 {
-	n = config.points;
-	m = n * n;
+	//n = config.points;
+	//m = n * n;
+	nx = config.pointsX;
+	ny = config.pointsY;
+	m = nx * ny;
+
 	k = 2.0*PI / config.wavelength;
 	matrix.resize(2 * m, 2 * m);
 	perm = config.maxIndex*config.maxIndex;
@@ -38,7 +42,7 @@ void MaxwellSolver::setWavelength(double wavelength)
 int MaxwellSolver::index(int i, int j)
 
 {
-	return i + j * n;
+	return i + j * nx;
 }
 
 void MaxwellSolver::condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ)
@@ -69,6 +73,8 @@ void MaxwellSolver::condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4,
 	std::vector<Triplet> v2;
 	std::vector<Triplet> v3;
 	std::vector<Triplet> v4;
+
+	Eigen::initParallel();
 
 	//Parallised
 	std::thread tr1([&]() {condenseThread(m1, v1, 0, 0);});
@@ -109,7 +115,7 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 	double rx, ry, rz;
 	int superI = index(i, j);
 	//Check if it is on the boundary
-	if (i == 0 || j == 0 || i == n || j == n)
+	if (i == 0 || j == 0 || i == nx || j == ny)
 
 	{
 		rx = perms[superI];
@@ -136,10 +142,10 @@ void MaxwellSolver::buildBoundaries()
 {
 	if (config.timers == 1) std::cout << "Building Boundary..." << std::endl;
 	Clock c;
-	for (int j = 0; j < n; j++)
+	for (int j = 0; j < ny; j++)
 
 	{
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < nx; i++)
 
 		{
 			int superI = index(i, j);
@@ -208,9 +214,9 @@ void MaxwellSolver::buildBoundaries()
 			*/
 
 			insertCoeff(coeffsUx, superI, superI, -1.0);
-			if ((superI + 1) % n != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+			if ((superI + 1) % nx != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
 			insertCoeff(coeffsUy, superI, superI, -1.0);
-			insertCoeff(coeffsUy, superI, superI+n, 1.0);
+			insertCoeff(coeffsUy, superI, superI+nx, 1.0);
 			
 
 			//if (j != 0) insertCoeff(coeffsIdentity, superI, superI, 1.0);
@@ -280,10 +286,10 @@ void MaxwellSolver::buildMatrix()
 
 	double kSqr = k * k;
 
-	Pxx = I*(-(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr));
-	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I_sym + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
-	Pxy = I*((Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr);
-	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I_sym + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
+	Pxx = (-(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr));
+	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
+	Pxy = ((Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr);
+	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
 
 	Pxx.prune(1.0 / k);
 	Pyy.prune(1.0 / k);

@@ -6,8 +6,7 @@ import matplotlib
 data = []
 
 n_core = 1.45
-#n_clad = 1.222
-n_clad = 1.0
+n_clad = 1.222
 a = 5.e-5
 
 #def line(V, gamma):
@@ -47,19 +46,13 @@ def plot_sweep(filename, char, color):
 
 	#popt, pcov = curve_fit(line, V, b)
 	#plt.plot(V, line(V, *popt), 'k-', linewidth=2)
-	plt.plot(wavelength, b, color + char, markersize=10, markeredgewidth=3)
-	plt.plot(wavelength, b, color + '-', linewidth=2)
+	plt.plot(V, b, color + char, markersize=10, markeredgewidth=3)
+	plt.plot(V, b, color + '-')
 	
 	
 filename = raw_input("Filename: ")
 if (filename == ""):
 	filename = "Sweep.dat"
-
-num = raw_input("Number of Traces: ")
-if (num == ""):
-	num = 1
-
-num = int(num)
 
 matplotlib.rcParams['mathtext.fontset'] = 'stix'
 matplotlib.rcParams['font.family'] = 'STIXGeneral'
@@ -70,17 +63,16 @@ plt.rc('legend',fontsize=20)
 point_types = ['x','o','^','s','v','P']
 colors = ['r','g','b','k','c','m']
 
-for i in range(0,num):
+for i in range(0,6):
 	plot_sweep("Sweep" + str(i) + ".dat", point_types[i], colors[i])
 
 
 
 plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
 plt.ylabel("Normalised propagation constant, $b$", fontsize=30)
-#plt.xlim(0,12.4)
-#plt.ylim(0,1.0)
-#plt.xticks(np.linspace(0.0, 12,7), fontsize=24)
-plt.xticks(fontsize=24)
+plt.xlim(0,12.4)
+plt.ylim(0,1.0)
+plt.xticks(np.linspace(0.0, 12,7), fontsize=24)
 plt.yticks(fontsize=24)
 plt.legend()
 plt.tight_layout()

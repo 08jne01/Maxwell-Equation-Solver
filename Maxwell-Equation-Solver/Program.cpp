@@ -59,9 +59,12 @@ int Program::mainLoop()
 		{
 			return EXIT_FAILURE;
 		}
-
-
-
+		double ratio = (double)fileHandler.config.pointsY / (double)fileHandler.config.pointsX;
+		
+		h = (int)((double)w * ratio);
+		std::cout << w << " " << h << std::endl;
+		//h = w;
+		//h = w;
 		//Create the window after calculation
 		window.create(sf::VideoMode(w, h), "Maxwell Equation Solver");
 
@@ -118,19 +121,22 @@ int Program::calculate()
 {
 	Clock c;
 	//Intialise maxwell solver
-	MaxwellSolver max(fileHandler.config);
 	std::vector<double> localGeometry;
-	fileHandler.getGeometry(max.perms, localGeometry);
+	std::vector<double> perms;
+	fileHandler.getGeometry(perms, localGeometry);
+	MaxwellSolver max(fileHandler.config);
+	max.perms = perms;
+	
 	//max.buildGeometry(perm, filename);
 	//Put geometry into vector for rendering
 	for (int i = 0; i < w; i++)
 
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < h; j++)
 
 		{
-			double val = getValue(localGeometry, sqrt(localGeometry.size()), i, j, w, w);
-			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + w) % w), sf::Color(val, val, val, 100)));
+			double val = getValue(localGeometry, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
+			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(val, val, val, 100)));
 		}
 	}
 	//Build boundaries and matrices
@@ -173,10 +179,10 @@ void Program::setMode(int mode)
 	for (int i = 0; i < w; i++)
 
 	{
-		for (int j = 0; j < w; j++)
+		for (int j = 0; j < h; j++)
 
 		{
-			double val = getValue(normal, sqrt(vec.size()), i, j, w, w);
+			double val = getValue(normal, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
 			int colorR, colorB, colorG;
 			if (val < 0.0)
 
@@ -193,7 +199,7 @@ void Program::setMode(int mode)
 				colorB = 0;
 				colorG = 255*(1 - (-(val*val) + 1));
 			}
-			points.append(sf::Vertex(sf::Vector2f(i,(-j + w) % w), sf::Color(colorR, colorG, colorB)));
+			points.append(sf::Vertex(sf::Vector2f(i,(-j + h) % h), sf::Color(colorR, colorG, colorB)));
 		}
 	}
 }
@@ -214,12 +220,12 @@ double Program::interpolate(double d1, double d2, double w)
 	*/
 }
 
-double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x, int y, int w, int h)
+double Program::getValue(std::vector<double> &gridPoints, int sideLengthX, int sideLengthY, int x, int y, int w, int h)
 
 {
 	//Interpolation algorithm (Similar to the last half of a perlin noise algorithm)
-	double xVal = ((double)x / (double)w)*(double)sideLength;
-	double yVal = ((double)y / (double)h)*(double)sideLength;
+	double xVal = ((double)x / (double)w)*(double)sideLengthX;
+	double yVal = ((double)y / (double)h)*(double)sideLengthY;
 
 	int xVal0 = (int)xVal;
 	int xVal1 = xVal0 + 1;
@@ -229,13 +235,13 @@ double Program::getValue(std::vector<double> &gridPoints, int sideLength, int x,
 	double sX = pow(xVal - double(xVal0), 1);
 	double sY = pow(yVal - double(yVal0), 1);
 	double ix0, ix1, n0, n1;
-	n0 = gridPoints[xVal0 + yVal0 * sideLength];
-	n1 = gridPoints[xVal1 + yVal0 * sideLength];
+	n0 = gridPoints[xVal0 + yVal0 * sideLengthX];
+	n1 = gridPoints[xVal1 + yVal0 * sideLengthX];
 
 	ix0 = interpolate(n0, n1, sX);
 
-	n0 = gridPoints[xVal0 + yVal1 * sideLength];
-	n1 = gridPoints[xVal1 + yVal1 * sideLength];
+	n0 = gridPoints[xVal0 + yVal1 * sideLengthX];
+	n1 = gridPoints[xVal1 + yVal1 * sideLengthX];
 
 	ix1 = interpolate(n0, n1, sX);
 	return interpolate(ix0, ix1, sY);
@@ -288,17 +294,17 @@ void Program::writeFields()
 	os << s << mode+1 << end;
 	file.open(os.str());
 
-	int size = sqrt(field.Ex.col(0).size());
+	int size = fileHandler.config.pointsX;
 
 	file << "x,y,Ex,Ey,Ez,Hx,Hy,Hz" << std::endl;
 
 	double dx = field.dx;
 	double dy = field.dy;
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < fileHandler.config.pointsY; i++)
 
 	{
-		for (int j = 0; j < size; j++)
+		for (int j = 0; j < fileHandler.config.pointsX; j++)
 
 		{
 

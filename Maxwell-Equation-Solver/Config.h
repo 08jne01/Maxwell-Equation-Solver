@@ -26,5 +26,8 @@ struct Config
 	double sweepStart;
 	double sweepEnd;
 	int sweepPoints;
+	int initMode;
 	std::string sweepFilename;
+	int pointsX;
+	int pointsY;
 };

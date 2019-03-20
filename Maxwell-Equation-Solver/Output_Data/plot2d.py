@@ -30,13 +30,17 @@ y = arr[1, :]
 x = np.unique(x)
 y = np.unique(y)
 
+print len(x)
+print len(y)
+
 fields = []
 
 for i in range(2, 8):
 	field = arr[i, :]
-	fields.append(field.reshape(len(x), len(y)))
+	field = field.reshape(len(x), len(y))
+	fields.append(field)
 
-X, Y = np.meshgrid(x, y)
+X, Y = np.meshgrid(y, x)
 
 X /= 1e-2
 Y /= 1e-2
@@ -50,7 +54,7 @@ Y /= 1e-2
 
 #x, y = np.loadtxt
 #arr = [y1, y2, y3, y4];
-
+aspect = float(len(x))/float(len(y))
 
 
 fig, plots = plt.subplots(1, 3, figsize=(10,5))
