@@ -37,7 +37,7 @@ Dependancies:
 
 ```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
 
-```g++ -o max.out main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
+```g++ -O1 -o max.out main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
 
 To then run the program just use: ```max.out``` followed by any of the commands listed in the commands section.
 
@@ -73,7 +73,7 @@ You can get the latest SFML from https://en.sfml-dev.org/download.php
 
 ```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
 
-```g++ -o max.out -I./include -L./lib -std=c++11 main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
+```g++ -O1 -o max.out -I./include -L./lib -std=c++11 main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp -lsfml-graphics -lsfml-window -lsfml-system -pthread```
 
 To then run the program just use: ```export LD_LIBRARY_PATH=./lib && ./max.out``` followed by any of the commands listed in the commands section.
 
