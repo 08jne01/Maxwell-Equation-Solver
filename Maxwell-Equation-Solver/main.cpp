@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 
 	//std::cout << Eigen::nbThreads() << std::endl;
 
+	//std::cout << Eigen::nbThreads() << std::endl;
 
 	std::string configCommand = "-config";
 	std::string sweepCommand = "-sweep";

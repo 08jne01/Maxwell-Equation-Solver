@@ -46,6 +46,7 @@ int Program::mainLoop()
 		Sweep sweep(fileHandler.config.sweepType, fileHandler);
 		sweep.wavelengthTrace(fileHandler.config.sweepStart, fileHandler.config.sweepEnd, fileHandler.config.sweepPoints);
 		sweep.outputData(fileHandler.config.sweepFilename);
+		system("PAUSE");
 	}
 
 	else
@@ -60,7 +61,6 @@ int Program::mainLoop()
 		double ratio = (double)fileHandler.config.pointsY / (double)fileHandler.config.pointsX;
 		
 		h = (int)((double)w * ratio);
-		std::cout << w << " " << h << std::endl;
 		//h = w;
 		//h = w;
 		//Create the window after calculation
@@ -91,7 +91,7 @@ int Program::mainLoop()
 
 			{
 				setMode(mode);
-				std::cout << "Current Mode: " << (mode)+1 << std::endl << "=====================" << std::endl;
+				std::cout << "Current Mode: " << (mode) << std::endl << "=====================" << std::endl;
 				modeSet = 1;
 			}
 
@@ -104,6 +104,7 @@ int Program::mainLoop()
 
 		}
 	}
+	
 	return EXIT_SUCCESS;
 }
 

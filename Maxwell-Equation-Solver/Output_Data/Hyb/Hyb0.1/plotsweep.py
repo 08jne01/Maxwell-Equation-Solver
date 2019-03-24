@@ -13,7 +13,7 @@ a = 5.e-5
 #def line(V, gamma):
 	#return ((gamma*a)**2)/(V**2)
 
-def plot_sweep(filename, char, color, label_str, prev_label, index):
+def plot_sweep(filename, char, color):
 	
 	data = np.loadtxt(filename, delimiter=',', unpack=True, skiprows=1)
 
@@ -40,21 +40,15 @@ def plot_sweep(filename, char, color, label_str, prev_label, index):
 	V = temp_V
 	b = temp_b
 
-	V = np.array(V)*1000
+	V = np.array(V)*1000.
+
 	#plt.plot(data[0], y, 'r-')
 	#plt.plot(data[0], y, 'rx')
 
 	#popt, pcov = curve_fit(line, V, b)
 	#plt.plot(V, line(V, *popt), 'k-', linewidth=2)
-	if (index < 2):
-		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=5, markeredgewidth=2)
-		plt.plot(wavelength*(1.e+2), neff, color + '-', linewidth=1.0, label=label_str)
-	else:
-		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=5, markeredgewidth=2)
-		if (label_str == ""):
-			plt.plot(wavelength*(1.e+2), neff, color + '-.', linewidth=1.0, label=(prev_label + " anti-phase"))
-		else:
-			plt.plot(wavelength*(1.e+2), neff, color + ':', linewidth=1.0, label=(label_str + " in-phase"))
+	#plt.plot(wavelength*(1.e+3), b, color + char, markersize=10, markeredgewidth=3)
+	plt.plot(wavelength*(1.e+3), b, color + '-', linewidth=1)
 	
 	
 filename = raw_input("Filename: ")
@@ -73,24 +67,17 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 plt.figure(1, figsize = (10,8))
 plt.rc('legend',fontsize=20)
 
-point_types = ['x','o','^', '^','s', 's','v','v','P','P']
-colors = ['r','g','b','b','k','k','m','m','c','c']
-line_type = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-label_str = ['0.65 $\mu m$ Structure Mode 2', '0.30 $\mu m$ Structure Mode 0', '0.05 $\mu m$ Separation','','0.10 $\mu m$ Separation','','0.20 $\mu m$ Separation','','0.50 $\mu m$ Separation','']
-#point_types = ['x','o','^','s','v','P']
-#colors = ['r','g','b','k','c','m']
+point_types = ['x','o','^','s','v','P']
+colors = ['r','g','b','k','c','m']
 
 for i in range(0,num):
-	prev_label = ''
-	if (i > 0):
-		prev_label = label_str[i-1]
-	plot_sweep("Sweep" + str(i) + ".dat", point_types[i], colors[i], label_str[i], prev_label, i)
+	plot_sweep("Sweep" + str(i) + ".dat", point_types[i], colors[i])
 
 
 
 #plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
-plt.xlabel("Wavlength in free space, $\lambda$ ($10^{-6}$)", fontsize=30)
-plt.ylabel("Effective refractive index, $n_{eff}$", fontsize=30)
+plt.xlabel("Wavlength in free space, $\lambda$ ($10^{-3}$)", fontsize=30)
+plt.ylabel("Normalised propagation constant, $b$", fontsize=30)
 #plt.xlim(0,12.4)
 #plt.ylim(0,1.0)
 #plt.xticks(np.linspace(0.0, 12,7), fontsize=24)

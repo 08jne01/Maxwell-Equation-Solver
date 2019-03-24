@@ -106,20 +106,61 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 				double prevOverlap, curOverlap;
 				int closestMode;
 
+				//std::vector<double> overlapsDiff;
+				//overlapsDiff.resize(curField.Ex.outerSize());
 				for (int i = 0; i < curField.Ex.outerSize(); i++)
 
 				{
 					curOverlap = overlap(prevField, prevMode, curField, i, solver);
-					
+					//overlapsDiff[i] = curOverlap;
 					if (curOverlap > prevOverlap)
 
 					{
 						closestMode = i;
 						prevOverlap = curOverlap;
 					}
-					
-					
 				}
+				/*
+				if (prevOverlap < 0.999)
+
+				{
+					std::cout << "Overlap < 0.8, Select Mode Manually" << std::endl;
+					for (int i = 0; i < curField.Ex.outerSize(); i++)
+
+					{
+						std::cout << "Mode: " << i << " neff: " << sqrt(std::abs(curField.eigenValues[i])) / curField.k << " Overlap: " << overlapsDiff[i] << std::endl;
+					}
+					int selectedMode, inputSuccess;
+					inputSuccess = 0;
+					while (!inputSuccess)
+
+					{
+						//std::cout << "Error in input try again!" << std::endl;
+						std::cout << "Select mode: ";
+						std::cin >> selectedMode;
+
+						if (std::cin.fail())
+
+						{
+							std::cin.clear();
+							std::cin.ignore(32767, '\n');
+							std::cout << "Error in input please try again!" << std::endl;
+						}
+
+						else
+
+						{
+							std::cin.ignore(32767, '\n');
+							inputSuccess = 1;
+						}
+					}
+
+					closestMode = selectedMode;
+					prevOverlap = overlapsDiff[selectedMode];
+				}
+				*/
+
+
 				std::cout << "Overlap: " << prevOverlap << std::endl;
 				prevMode = closestMode;
 				prevField = curField;
