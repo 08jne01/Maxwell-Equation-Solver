@@ -126,12 +126,12 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 	else
 
 	{	//Averages across 2 points (stair case approximation)
-		rx = (perms[superI] + perms[index(i, j - 1)]) / 2;
-		ry = (perms[superI] + perms[index(i - 1, j)]) / 2;
-		rz = (perms[superI] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
-		//rx = perms[superI];
-		//ry = perms[superI];
-		//rz = perms[superI];
+		//rx = (perms[superI] + perms[index(i, j - 1)]) / 2;
+		//ry = (perms[superI] + perms[index(i - 1, j)]) / 2;
+		//rz = (perms[superI] + perms[index(i - 1, j - 1)] + perms[index(i, j - 1)] + perms[index(i - 1, j)]) / 4;
+		rx = perms[superI];
+		ry = perms[superI];
+		rz = perms[superI];
 	}
 
 	return Vector3(rx, ry, rz);
@@ -219,7 +219,7 @@ void MaxwellSolver::buildBoundaries()
 			insertCoeff(coeffsUy, superI, superI+nx, 1.0);
 			
 
-			//if (j != 0) insertCoeff(coeffsIdentity, superI, superI, 1.0);
+			insertCoeff(coeffsIdentity, superI, superI, 1.0);
 			
 		}
 	}
@@ -233,7 +233,7 @@ void MaxwellSolver::buildMatrix()
 	Clock c;
 	SparseM Pxx(m, m), Pxy(m, m), Pyx(m, m), Pyy(m, m), //Kill me
 			Vx(m, m), Vy(m, m), erx(m, m),
-			ery(m, m), erzI(m, m), I(m, m), I_sym(m,m);
+			ery(m, m), erzI(m, m), I(m, m);
 	//Resize boundary matrices
 	Ux.resize(m, m);
 	Uy.resize(m, m);
@@ -280,15 +280,14 @@ void MaxwellSolver::buildMatrix()
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
 	//I.setIdentity();
-	//I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
-	I.setIdentity();
-	I_sym.setIdentity();
+	I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
+	//I.setIdentity();
 
 	double kSqr = k * k;
 
-	Pxx = (-(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr));
+	Pxx = -(Ux*erzI*Vy*Vx*Uy)/kSqr + (kSqr*I + Ux * erzI*Vx)*(erx + (Vy*Uy)/kSqr);
 	Pyy = -(Uy*erzI*Vx*Vy*Ux)/kSqr + (kSqr*I + Uy * erzI*Vy)*(ery + (Vx*Ux)/kSqr);
-	Pxy = ((Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr);
+	Pxy = (Ux * erzI*Vy)*(ery + (Vx*Ux)/kSqr) - ((kSqr*I + Ux * erzI*Vx)*(Vy*Ux))/kSqr;
 	Pyx = (Uy * erzI*Vx)*(erx + (Vy*Uy)/kSqr) - ((kSqr*I + Uy * erzI*Vy)*(Vx*Uy))/kSqr; //erx - > ery in phils code
 
 	Pxx.prune(1.0 / k);
