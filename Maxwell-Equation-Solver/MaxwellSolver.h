@@ -57,7 +57,7 @@ private:
 	std::vector<Triplet> coeffsPermX;
 	std::vector<Triplet> coeffsPermY;
 	std::vector<Triplet> coeffsPermZInverse;
-	std::vector<Triplet> coeffsIdentity;
+
 	//Matrices
 	SparseM matrix, Ux, Uy, Ux_sym, Uy_sym;
 	//Results

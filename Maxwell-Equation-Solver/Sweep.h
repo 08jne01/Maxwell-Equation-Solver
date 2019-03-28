@@ -1,8 +1,8 @@
 #pragma once
 #include <vector>
 #include "Vector2.h"
-#include "MaxwellSolver.h"
 #include "FieldViewer.h"
+#include "MaxwellSolver.h"
 
 #define GEOMETRY 0
 #define WAVELENGTH 1

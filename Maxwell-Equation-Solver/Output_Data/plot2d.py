@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 filename = raw_input("Filename: ")
 
 if (filename == ""):
-	filename = "Field_Components_Mode_1.dat"
+	filename = "Field_Components_Mode_0.dat"
 
 
 arr = np.loadtxt(filename, delimiter=',', unpack=True, skiprows=1)

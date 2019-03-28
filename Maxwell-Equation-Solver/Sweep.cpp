@@ -135,10 +135,10 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 					}
 				}
 				
-				if (prevOverlap < 0.8)
+				if (prevOverlap < fileHandler.config.overlapConfidence)
 
 				{
-					std::cout << "Overlap < 0.8, Select Mode Manually" << std::endl;
+					std::cout << "Overlap < "<< fileHandler.config.overlapConfidence << ", Select Mode Manually" << std::endl;
 					for (int i = 0; i < curField.Ex.outerSize(); i++)
 
 					{
@@ -147,7 +147,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 					int selectedMode, inputSuccess;
 					inputSuccess = 0;
 					FieldViewer fieldViewer(fileHandler, curField, drawGeometry, overlapsDiff);
-					fieldViewer.mainLoop();
+					selectedMode = fieldViewer.mainLoop();
 					/*
 					while (!inputSuccess)
 
@@ -174,6 +174,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 					*/
 
 					closestMode = selectedMode;
+					if (closestMode == -1) break;
 					prevOverlap = overlapsDiff[selectedMode];
 				}
 				

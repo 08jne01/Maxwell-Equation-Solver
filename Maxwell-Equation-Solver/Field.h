@@ -16,11 +16,11 @@ public:
 	typedef Eigen::MatrixXd mat;
 	typedef Eigen::VectorXd vec;
 
-	Field();
-	Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz);
-	mat getField(int field);
-	std::string getFieldName(int field);
-	void setEigenValues(vec values);
+	//Field();
+	//Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz);
+	//mat getField(int field);
+	//std::string getFieldName(int field);
+	//void setEigenValues(vec values);
 
 	mat Ex;
 	mat Ey;
@@ -46,6 +46,81 @@ public:
 			return "Exception: No field with that index!";
 		}
 	};
+
+	Field()
+
+	{
+
+	}
+
+	Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz) :
+		Ex(ex), Ey(ey), Ez(ez),
+		Hx(hx), Hy(hy), Hz(hz)
+	{
+
+	}
+
+	std::string getFieldName(int field)
+
+	{
+		return fieldNames[field];
+	}
+
+	Field::mat getField(int field)
+
+	{
+		switch (field)
+
+		{
+		case FIELD_EX:
+
+		{
+			return Ex;
+		}
+
+		case FIELD_EY:
+
+		{
+			return Ey;
+		}
+
+		case FIELD_EZ:
+
+		{
+			return Ez;
+		}
+
+		case FIELD_HX:
+
+		{
+			return Hx;
+		}
+
+		case FIELD_HY:
+
+		{
+			return Hy;
+		}
+
+		case FIELD_HZ:
+
+		{
+			return Hz;
+		}
+
+		default:
+
+		{
+			throw UndefinedField();
+		}
+		}
+	}
+
+	void setEigenValues(vec values)
+
+	{
+		eigenValues = values;
+	}
 
 private:
 };

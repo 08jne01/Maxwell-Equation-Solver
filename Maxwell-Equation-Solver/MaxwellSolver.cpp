@@ -226,7 +226,7 @@ void MaxwellSolver::buildBoundaries()
 			insertCoeff(coeffsUy, superI, superI+nx, 1.0);
 			
 
-			insertCoeff(coeffsIdentity, superI, superI, 1.0);
+			//insertCoeff(coeffsIdentity, superI, superI, 1.0);
 			
 		}
 	}

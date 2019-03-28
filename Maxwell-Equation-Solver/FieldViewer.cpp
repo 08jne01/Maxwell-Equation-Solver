@@ -246,7 +246,7 @@ void FieldViewer::writeFields()
 	std::stringstream os;
 	std::string s = "Output_Data/Field_Components_Mode_";
 	std::string end = ".dat";
-	os << s << mode + 1 << end;
+	os << s << mode << end;
 	file.open(os.str());
 
 	int size = fileHandler.config.pointsX;
@@ -341,6 +341,14 @@ void FieldViewer::keyCallBack(sf::Event events)
 
 			{
 				window.close();
+				break;
+			}
+
+			case sf::Keyboard::BackSpace:
+
+			{
+				window.close();
+				mode = -1;
 				break;
 			}
 		}

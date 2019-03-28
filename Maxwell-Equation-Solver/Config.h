@@ -23,6 +23,7 @@ struct Config
 	int timers;
 	int screenSize;
 	int sweepType;
+	double overlapConfidence;
 	double sweepStart;
 	double sweepEnd;
 	int sweepPoints;

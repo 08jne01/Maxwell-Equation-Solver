@@ -74,6 +74,6 @@ int main(int argc, char* argv[])
 	}
 
 	sf::err().rdbuf(NULL);
-	Program p(width, width, filename, willSweep, willUseneff, neff);
+	Program p(filename, willSweep, willUseneff, neff);
 	return p.mainLoop();
 }

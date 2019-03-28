@@ -8,7 +8,7 @@ data = []
 n_core = 3.55
 #n_clad = 1.222
 n_clad = 1.45
-a = 5.e-5
+a = 4.e-5
 
 #def line(V, gamma):
 	#return ((gamma*a)**2)/(V**2)
@@ -46,11 +46,12 @@ def plot_sweep(filename, char, color, label_str, prev_label, index):
 
 	#popt, pcov = curve_fit(line, V, b)
 	#plt.plot(V, line(V, *popt), 'k-', linewidth=2)
-	if (index < 2):
-		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=5, markeredgewidth=2)
-		plt.plot(wavelength*(1.e+2), neff, color + '-', linewidth=1.0, label=label_str)
+	number_lines = 10
+	if (index < number_lines):
+		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=10, markeredgewidth=3, label=label_str)
+		plt.plot(wavelength*(1.e+2), neff, color + '-', linewidth=2.0)
 	else:
-		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=5, markeredgewidth=2)
+		plt.plot(wavelength*(1.e+2), neff, color + char, markersize=10, markeredgewidth=3)
 		if (label_str == ""):
 			plt.plot(wavelength*(1.e+2), neff, color + '-.', linewidth=1.0, label=(prev_label + " anti-phase"))
 		else:
@@ -73,12 +74,13 @@ matplotlib.rcParams['font.family'] = 'STIXGeneral'
 plt.figure(1, figsize = (10,8))
 plt.rc('legend',fontsize=20)
 
-point_types = ['x','o','^', '^','s', 's','v','v','P','P']
-colors = ['r','g','b','b','k','k','m','m','c','c']
+#point_types = ['x','o','^', '^','s', 's','v','v','P','P']
+#colors = ['r','g','b','b','k','k','m','m','c','c']
 line_type = ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-']
-label_str = ['0.65 $\mu m$ Structure Mode 2', '0.30 $\mu m$ Structure Mode 0', '0.05 $\mu m$ Separation','','0.10 $\mu m$ Separation','','0.20 $\mu m$ Separation','','0.50 $\mu m$ Separation','']
-#point_types = ['x','o','^','s','v','P']
-#colors = ['r','g','b','k','c','m']
+#label_str = ['0.65 $\mu m$ Structure Mode 2', '0.30 $\mu m$ Structure Mode 0', '0.05 $\mu m$ Separation','','0.10 $\mu m$ Separation','','0.20 $\mu m$ Separation','','0.50 $\mu m$ Separation','']
+label_str = ['Mode 0', 'Mode 1', 'Mode 2','Mode 3','Mode 4','','0.20 $\mu m$ Separation','','0.50 $\mu m$ Separation','']
+point_types = ['x','o','^','s','v','P']
+colors = ['r','g','b','k','c','m']
 
 for i in range(0,num):
 	prev_label = ''
@@ -89,7 +91,7 @@ for i in range(0,num):
 
 
 #plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
-plt.xlabel("Wavlength in free space, $\lambda$ ($10^{-6}$)", fontsize=30)
+plt.xlabel("Wavelength in free space, $\lambda$ ($10^{-6}$)", fontsize=30)
 plt.ylabel("Effective refractive index, $n_{eff}$", fontsize=30)
 #plt.xlim(0,12.4)
 #plt.ylim(0,1.0)
