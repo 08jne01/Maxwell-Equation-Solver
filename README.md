@@ -107,5 +107,5 @@ Commands:
 
 Geometry is imported by bitmap (More accurate methods will be added in future):
 - Make sure your bitmap dimensions are divisible by 4.
-- Make sure your number of points matches the dimensions of the image (160x160 image will require 160 points)
+- ~Make sure your number of points matches the dimensions of the image (160x160 image will require 160 points)~ You can now use rectangular windows and the grid size is chosen based on the image size.
 - In your image black will be 1.0 refractive index and white will be the max refractive index set in the config.
