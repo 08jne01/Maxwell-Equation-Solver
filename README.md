@@ -95,6 +95,10 @@ Once the program has converged a window will open with your modes.
 - Left and Right will change the current selected field.
 - Space will display the imported fiber geometry.
 - Enter will export the current mode and all fields to a file in Output_Data/Field_Components_Mode_[CURRENT SELECTED MODE].dat
+- Escape will quit or choose fibre mode if sweeping.
+- Backspace will end sweep early.
+
+Sweeping is now in you can find all the sweep options in the config files. To sweep just run with the command -sweep. The sweep finds the next mode based on an overlap integral, sometimes the new modes don't contain the previous mode or are too different for the program to be confident it is the same mode. In this case the program will ask you which mode is best to select with a list of the confidence levels for each mode and the field viewer will open so you can see each mode and select the closest one to the one you are tracing.
 
 Commands:
 - ```-sweep``` sweep the fibre according to the config.
