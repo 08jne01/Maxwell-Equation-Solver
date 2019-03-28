@@ -58,7 +58,7 @@ double Sweep::overlap(Field& field1, int mode1, Field& field2, int mode2, Maxwel
 void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 
 {
-	double waveStep = (endWave - startWave) / (double)steps;
+	double waveStep = (endWave - startWave) / ((double)steps - 1);
 	Clock clock;
 	std::cout << "Initialising Sweep..." << std::endl;
 	std::vector<double> perms;
@@ -69,9 +69,11 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	
 
 	int prevMode = fileHandler.config.initMode;
-	double prevEig;
+	double prevEig, prevGuess;
 	int start = 0;
 	Field prevField, curField;
+
+	prevGuess = fileHandler.config.neffGuess;
 
 	for (int i = 0; i < steps; i++)
 
@@ -82,8 +84,18 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 		solver.buildMatrix();
 
 		int success;
-		//if (start != 0) success = solver.findModes(prevEig);
-		//else success = solver.findModes(pow(0.99999999 * 2.*PI / wavelength, 2.));
+		//if (start != 0) 
+
+		//{
+			//double neff = sqrt(prevEig) / prevField.k;
+			//prevGuess += (neff - prevGuess) / 10000.0;
+			//std::cout << neff << " " << prevGuess << std::endl;
+			//success = solver.findModes(pow(prevGuess * 2.*PI / wavelength, 2.));
+			
+		//}
+
+		//else success = solver.findModes(pow(fileHandler.config.neffGuess * 2.*PI / wavelength, 2.));
+		
 		success = solver.findModes(pow(fileHandler.config.neffGuess * 2.*PI / wavelength, 2.));
 
 		if (success == EXIT_SUCCESS)
@@ -103,16 +115,18 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 			else
 
 			{
-				double prevOverlap, curOverlap;
+				double prevOverlap = 0.0;
+				double curOverlap;
 				int closestMode;
 
-				//std::vector<double> overlapsDiff;
+				std::vector<double> overlapsDiff;
 				//overlapsDiff.resize(curField.Ex.outerSize());
 				for (int i = 0; i < curField.Ex.outerSize(); i++)
 
 				{
 					curOverlap = overlap(prevField, prevMode, curField, i, solver);
-					//overlapsDiff[i] = curOverlap;
+					//std::cout << curOverlap << std::endl;
+					overlapsDiff.push_back(curOverlap);
 					if (curOverlap > prevOverlap)
 
 					{
@@ -120,8 +134,8 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 						prevOverlap = curOverlap;
 					}
 				}
-				/*
-				if (prevOverlap < 0.999)
+				
+				if (prevOverlap < 0.8)
 
 				{
 					std::cout << "Overlap < 0.8, Select Mode Manually" << std::endl;
@@ -132,6 +146,9 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 					}
 					int selectedMode, inputSuccess;
 					inputSuccess = 0;
+					FieldViewer fieldViewer(fileHandler, curField, drawGeometry, overlapsDiff);
+					fieldViewer.mainLoop();
+					/*
 					while (!inputSuccess)
 
 					{
@@ -154,11 +171,12 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 							inputSuccess = 1;
 						}
 					}
+					*/
 
 					closestMode = selectedMode;
 					prevOverlap = overlapsDiff[selectedMode];
 				}
-				*/
+				
 
 
 				std::cout << "Overlap: " << prevOverlap << std::endl;

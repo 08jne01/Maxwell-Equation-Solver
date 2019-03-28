@@ -140,6 +140,13 @@ Vector3 MaxwellSolver::getPermComponent(int i, int j)
 void MaxwellSolver::buildBoundaries()
 
 {
+	//coeffsPermX.clear();
+	//coeffsPermY.clear();
+	//coeffsPermZInverse.clear();
+	//coeffsUx.clear();
+	//coeffsUy.clear();
+
+
 	if (config.timers == 1) std::cout << "Building Boundary..." << std::endl;
 	Clock c;
 	for (int j = 0; j < ny; j++)
@@ -280,8 +287,8 @@ void MaxwellSolver::buildMatrix()
 	erzI.setFromTriplets(coeffsPermZInverse.begin(), coeffsPermZInverse.end());
 	//Identity Matrix
 	//I.setIdentity();
-	I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
-	//I.setIdentity();
+	//I.setFromTriplets(coeffsIdentity.begin(), coeffsIdentity.end());
+	I.setIdentity();
 
 	double kSqr = k * k;
 

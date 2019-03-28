@@ -30,9 +30,22 @@ int main(int argc, char* argv[])
 				willSweep = 1;
 			}
 
-			if (argv[i] == configCommand)
+			if (argv[i] == configCommand && argc > 1)
 
 			{
+				if (i + 1 <= argc - 1)
+
+				{
+					filename = "Resources/" + std::string(argv[i + 1]);
+				}
+
+				else
+
+				{
+					std::cout << "No config specificed using default!" << std::endl;
+				}
+				
+				/*
 				std::cout << "Config file (blank for default):";
 				if (std::cin.peek() != '\n')
 
@@ -41,6 +54,7 @@ int main(int argc, char* argv[])
 					std::cin >> file;
 					filename = "Resources/" + file;
 				}
+				*/
 			}
 
 			if (argv[i] == neffCommand)

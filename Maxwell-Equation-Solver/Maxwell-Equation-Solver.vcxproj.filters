@@ -63,6 +63,9 @@
     <ClCompile Include="Field.h">
       <Filter>Header Files\Maxwell</Filter>
     </ClCompile>
+    <ClCompile Include="FieldViewer.cpp">
+      <Filter>Source Files\Main</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h">
@@ -100,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="SparseGenComplexShiftSolve.h">
       <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="FieldViewer.h">
+      <Filter>Header Files\Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

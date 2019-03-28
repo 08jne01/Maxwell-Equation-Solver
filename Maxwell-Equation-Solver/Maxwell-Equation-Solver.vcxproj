@@ -137,6 +137,7 @@
     <ClCompile Include="Clock.cpp" />
     <ClCompile Include="Field.cpp" />
     <ClCompile Include="Field.h" />
+    <ClCompile Include="FieldViewer.cpp" />
     <ClCompile Include="FileHandler.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
@@ -147,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="Clock.h" />
     <ClInclude Include="Config.h" />
+    <ClInclude Include="FieldViewer.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Interface.h" />
