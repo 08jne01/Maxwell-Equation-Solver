@@ -55,6 +55,56 @@ double Sweep::overlap(Field& field1, int mode1, Field& field2, int mode2, Maxwel
 	return std::abs(sum12*sum21)/std::abs(sum22*sum11);
 }
 
+double Sweep::lerp(double d1, double d2, double w)
+
+{
+	return d1 + w * (d2 - d1);
+}
+
+double Sweep::getIndex(double wavelength)
+
+{
+	wavelength *= fileHandler.config.profileMultiplier;
+
+	double minWavelength, maxWavelength;
+	minWavelength = indexProfile[0][0];
+	maxWavelength = indexProfile[indexProfile.size() - 1][0];
+
+	if (wavelength < minWavelength)
+
+	{
+		double n = indexProfile[0][1];
+		std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
+		return n;
+	}
+
+	if (wavelength > maxWavelength)
+
+	{
+		double n = indexProfile[indexProfile.size() - 1][1];
+		std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
+		return n;
+	}
+
+	int minIndex;
+	for (int i = 0; i < indexProfile.size(); i++)
+
+	{
+		double diff = ( wavelength - indexProfile[i][0]);
+		if (diff <= 0)
+
+		{
+			minIndex = i - 1;
+			break;
+		}
+	}
+
+	double weight = wavelength - indexProfile[minIndex][0];
+	double maxIndex = lerp(indexProfile[minIndex][1], indexProfile[minIndex + 1][1], weight);
+	std::cout << "Using Max Index: " << maxIndex << std::endl;
+	return maxIndex;
+}
+
 void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 
 {
@@ -64,9 +114,11 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	std::vector<double> perms;
 	fileHandler.getGeometry(perms, drawGeometry);
 	MaxwellSolver solver(fileHandler.config);
-	solver.perms = perms;
+	solver.permsValues = drawGeometry;
 	
+	//solver.setPerms(fileHandler.config.maxIndex);
 	
+	if (fileHandler.config.profileOn) fileHandler.readCSV(fileHandler.config.indexProfile, indexProfile, 2, 1);
 
 	int prevMode = fileHandler.config.initMode;
 	double prevEig, prevGuess;
@@ -80,6 +132,8 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	{
 		double wavelength = waveStep * i + startWave;
 		solver.setWavelength(wavelength);
+		if (fileHandler.config.profileOn) solver.setPerms(getIndex(wavelength));
+		else solver.setPerms(fileHandler.config.maxIndex);
 		solver.buildBoundaries();
 		solver.buildMatrix();
 

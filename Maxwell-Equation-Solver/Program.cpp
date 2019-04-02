@@ -82,7 +82,8 @@ int Program::calculate(std::vector<double>& localGeometry)
 	std::vector<double> perms;
 	fileHandler.getGeometry(perms, localGeometry);
 	MaxwellSolver max(fileHandler.config);
-	max.perms = perms;
+	max.permsValues = localGeometry;
+	max.setPerms(fileHandler.config.maxIndex);
 	max.buildBoundaries();
 	max.buildMatrix();
 

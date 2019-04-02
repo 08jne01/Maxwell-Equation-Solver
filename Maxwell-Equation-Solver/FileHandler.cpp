@@ -47,7 +47,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 18)
+	if (conf.size() != 21)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -77,6 +77,9 @@ void FileHandler::readConfig(std::string filename)
 		conf[15] >> config.sweepPoints;
 		conf[16] >> config.initMode;
 		conf[17] >> config.sweepFilename;
+		conf[18] >> config.profileOn;
+		conf[19] >> config.indexProfile;
+		conf[20] >> config.profileMultiplier;
 	}
 }
 
@@ -118,4 +121,49 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 	//Need to make a check for sizes!
 	delete data;
 	std::cout << config.fiber << " geometry imported!" << std::endl;
+}
+
+void FileHandler::readCSV(std::string filename, std::vector<std::vector<double>>& dataVector, int columns, int ignoreLine)
+
+{
+	std::ifstream in(filename);
+	std::string line;
+	std::string data;
+
+	std::vector<std::vector<double>> tempVec;
+
+	if (!in.is_open())
+
+	{
+		std::cout << "Failed to open data!" << std::endl;
+		char arr[20];
+		strerror_s(arr, errno);
+		std::cout << "Error: " << arr << std::endl;
+		return;
+	}
+	while (in.good())
+
+	{
+		std::vector<double> buffer;
+
+		for (int i = 0; i < columns; i++)
+
+		{
+			if (i < columns - 1) getline(in, data, ',');
+
+			else getline(in, data, '\n');
+			std::stringstream os(data);
+			double temp;
+			os >> temp;
+			buffer.push_back(temp);
+			//std::cout << data << std::endl;
+		}
+
+		if (ignoreLine != 1) tempVec.push_back(buffer);
+		ignoreLine = 0;
+	}
+
+	tempVec.pop_back();
+
+	dataVector = tempVec;
 }

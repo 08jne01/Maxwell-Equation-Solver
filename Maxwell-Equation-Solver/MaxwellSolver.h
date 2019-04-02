@@ -29,6 +29,7 @@ public:
 	void condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4, SparseM &returnMatrix);
 	void condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ);
 	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val);
+	void setPerms(double maxIndex);
 	Vector3 getPermComponent(int i, int j);
 
 	//Initialisers
@@ -38,6 +39,7 @@ public:
 	int findModes(double sigma = -1.0);
 	Field constructField();
 
+	std::vector<double> permsValues;
 	std::vector<double> perms;
 	int nx, ny;
 	//
@@ -45,6 +47,7 @@ public:
 
 private:
 
+	
 	//Config
 	Config config;
 	//Coefficients
@@ -58,6 +61,7 @@ private:
 	std::vector<Triplet> coeffsPermY;
 	std::vector<Triplet> coeffsPermZInverse;
 
+	
 	//Matrices
 	SparseM matrix, Ux, Uy, Ux_sym, Uy_sym;
 	//Results

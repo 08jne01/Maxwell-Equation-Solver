@@ -45,6 +45,20 @@ int MaxwellSolver::index(int i, int j)
 	return i + j * nx;
 }
 
+void MaxwellSolver::setPerms(double maxIndex)
+
+{
+	
+	perms.clear();
+	for (int i = 0; i < permsValues.size(); i++)
+
+	{
+		double val = (maxIndex - 1.0)*permsValues[i] / 255.0 + 1.0;
+		perms.push_back(val*val);
+	}
+	
+}
+
 void MaxwellSolver::condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ)
 
 {	//Iterates through each value and puts it into a new triplet vector based on position and lowJ and lowI

@@ -29,6 +29,9 @@ struct Config
 	int sweepPoints;
 	int initMode;
 	std::string sweepFilename;
+	int profileOn;
+	std::string indexProfile;
+	double profileMultiplier;
 	int pointsX;
 	int pointsY;
 };
