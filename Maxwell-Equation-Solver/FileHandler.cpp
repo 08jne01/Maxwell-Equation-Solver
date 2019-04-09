@@ -47,7 +47,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 21)
+	if (conf.size() != 22)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -70,16 +70,17 @@ void FileHandler::readConfig(std::string filename)
 		conf[8] >> config.fiber;
 		conf[9] >> config.timers;
 		conf[10] >> config.screenSize;
-		conf[11] >> config.sweepType;
-		conf[12] >> config.overlapConfidence;
-		conf[13] >> config.sweepStart;
-		conf[14] >> config.sweepEnd;
-		conf[15] >> config.sweepPoints;
-		conf[16] >> config.initMode;
-		conf[17] >> config.sweepFilename;
-		conf[18] >> config.profileOn;
-		conf[19] >> config.indexProfile;
-		conf[20] >> config.profileMultiplier;
+		conf[11] >> config.colorMapFileName;
+		conf[12] >> config.sweepType;
+		conf[13] >> config.overlapConfidence;
+		conf[14] >> config.sweepStart;
+		conf[15] >> config.sweepEnd;
+		conf[16] >> config.sweepPoints;
+		conf[17] >> config.initMode;
+		conf[18] >> config.sweepFilename;
+		conf[19] >> config.profileOn;
+		conf[20] >> config.indexProfile;
+		conf[21] >> config.profileMultiplier;
 	}
 }
 

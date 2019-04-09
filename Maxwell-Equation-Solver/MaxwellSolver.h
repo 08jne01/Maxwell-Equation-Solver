@@ -7,18 +7,19 @@
 #include <Spectra/GenEigsComplexShiftSolver.h>
 #include <Spectra/MatOp/SparseGenMatProd.h>
 #include <Spectra/MatOp/SparseGenRealShiftSolve.h>
+#include "FileHandler.h"
 #include "Header.h"
 #include "Field.h"
 #include "Clock.h"
 #include "Vector3.h"
-#include "Config.h"
+
 
 class MaxwellSolver
 
 {
 public:
 
-	MaxwellSolver(Config conf); //Size of one side of grid
+	MaxwellSolver(Config& conf); //Size of one side of grid
 	~MaxwellSolver();
 
 	typedef Eigen::Triplet<double> Triplet;
@@ -49,7 +50,7 @@ private:
 
 	
 	//Config
-	Config config;
+	Config& config;
 	//Coefficients
 	std::vector<Triplet> coeffsUx;
 	std::vector<Triplet> coeffsUy;

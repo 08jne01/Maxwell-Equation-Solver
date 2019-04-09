@@ -9,6 +9,7 @@ displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlapOn(0)
 	h = (int)((double)w * ratio);
 	eigs = fileHandler.config.numModes;
 	makeGeometryPoints(drawGeometry);
+	getColorScheme();
 }
 
 FieldViewer::FieldViewer(const FileHandler& fileH, Field fieldInit, std::vector<double> drawGeometry, std::vector<double> overlaps_) : fileHandler(fileH),
@@ -20,6 +21,20 @@ displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlaps(overlap
 	h = (int)((double)w * ratio);
 	eigs = fileHandler.config.numModes;
 	makeGeometryPoints(drawGeometry);
+	getColorScheme();
+}
+
+void FieldViewer::getColorScheme()
+
+{
+	std::vector<std::vector<double>> buffer;
+	fileHandler.readCSV(fileHandler.config.colorMapFileName, buffer, 3);
+
+	for (int i = 0; i < buffer.size(); i++)
+
+	{
+		colorMap.push_back(Color(buffer[i][0] * 255, buffer[i][1] * 255, buffer[i][2] * 255));
+	}
 }
 
 void FieldViewer::makeGeometryPoints(std::vector<double>& drawGeometry)
@@ -47,7 +62,7 @@ int FieldViewer::mainLoop()
 
 	font.loadFromFile("Resources/arial.ttf");
 	text.setFont(font);
-	text.setCharacterSize(10);
+	text.setCharacterSize(15);
 	text.setPosition(sf::Vector2f(0, 0));
 	text.setFillColor(sf::Color::Red);
 	windowText = "";
@@ -138,6 +153,14 @@ void FieldViewer::setMode(int mode)
 
 		{
 			double val = getValue(normal, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
+			
+			double greyScale = (255.0 / 2.0)*val + (255.0 / 2.0);
+			int greyInt = (int)greyScale;
+			Color c;
+			if (greyInt > colorMap.size()) c = colorMap[colorMap.size() - 1];
+			else if (greyInt < 0) c = colorMap[0];
+			else c = colorMap[greyInt];
+			/*
 			int colorR, colorB, colorG;
 			if (val < 0.0)
 
@@ -154,7 +177,9 @@ void FieldViewer::setMode(int mode)
 				colorB = 0;
 				colorG = 255 * (1 - (-(val*val) + 1));
 			}
-			points.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(colorR, colorG, colorB)));
+			*/
+			//points.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(colorR, colorG, colorB)));
+			points.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(c.r, c.g, c.b)));
 		}
 	}
 }

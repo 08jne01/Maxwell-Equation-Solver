@@ -3,8 +3,8 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include "MaxwellSolver.h"
 #include "Field.h"
-#include "FileHandler.h"
 
 class FieldViewer
 
@@ -19,12 +19,34 @@ public:
 	void normalise(Eigen::VectorXd& vec, std::vector<double>& normalisedVals);
 	void keyCallBack(sf::Event events);
 	void makeGeometryPoints(std::vector<double>& drawGeometry);
+	void getColorScheme();
 	double interpolate(double d1, double d2, double w);
 	double getValue(std::vector<double>& gridPoints, int sideLengthX, int sideLengthY, int x, int y, int w, int h);
+
+	struct Color
+
+	{
+		Color()
+
+		{
+
+		}
+
+		Color(int r_, int g_, int b_): r(r_), g(g_), b(b_)
+
+		{
+
+		}
+
+		int r;
+		int g;
+		int b;
+	};
 
 private:
 	int w, h, modeSet, displayField, gOn, mode, eigs, overlapOn;
 	std::vector<double> overlaps;
+	std::vector<Color> colorMap;
 	Field field;
 	sf::RenderWindow window;
 	FileHandler fileHandler;

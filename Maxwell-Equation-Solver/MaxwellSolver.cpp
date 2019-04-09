@@ -1,12 +1,16 @@
 #include "MaxwellSolver.h"
 
-MaxwellSolver::MaxwellSolver(Config conf): config(conf)
+MaxwellSolver::MaxwellSolver(Config& conf): config(conf)
 
 {
 	//n = config.points;
 	//m = n * n;
 	nx = config.pointsX;
 	ny = config.pointsY;
+
+	nx = 4;
+	ny = 2;
+
 	m = nx * ny;
 
 	k = 2.0*PI / config.wavelength;
@@ -171,7 +175,8 @@ void MaxwellSolver::buildBoundaries()
 		{
 			int superI = index(i, j);
 			//Set Permativities
-			Vector3 permVec = getPermComponent(i, j);
+			//Vector3 permVec = getPermComponent(i, j);
+			Vector3 permVec = Vector3(1.0, 1.0, 1.0);
 			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
 			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
 			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
@@ -235,7 +240,8 @@ void MaxwellSolver::buildBoundaries()
 			*/
 
 			insertCoeff(coeffsUx, superI, superI, -1.0);
-			if ((superI + 1) % nx != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+			//if ((superI + 1) % nx != 0) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
+			if (i != 0 && i != nx-1) insertCoeff(coeffsUx, superI, superI + 1, 1.0);
 			insertCoeff(coeffsUy, superI, superI, -1.0);
 			insertCoeff(coeffsUy, superI, superI+nx, 1.0);
 			
@@ -266,6 +272,9 @@ void MaxwellSolver::buildMatrix()
 	//Ux_sym.setFromTriplets(coeffsUxSym.begin(), coeffsUxSym.end());
 	//Uy_sym.setFromTriplets(coeffsUySym.begin(), coeffsUySym.end());
 	//Clear coeffs from memory
+
+	std::cout << Ux << std::endl;
+
 	coeffsUx.clear();
 	coeffsUy.clear();
 	//coeffsUxSym.clear();

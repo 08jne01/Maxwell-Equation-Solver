@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 filename = raw_input("Filename: ")
 
@@ -50,6 +52,10 @@ Y /= 1e-2
 
 #fields = getfield(angles, arr)
 
+cmap = plt.get_cmap('jet')
+shading = 'gouraud'
+#norm = mpl.colors.Normalize(vmin=np.min(fields[2]),vmax=np.max(fields[0]))
+
 
 
 #x, y = np.loadtxt
@@ -57,7 +63,7 @@ Y /= 1e-2
 aspect = float(len(x))/float(len(y))
 
 
-fig, plots = plt.subplots(1, 3, figsize=(10,5))
+fig, plots = plt.subplots(1, 3, figsize=(15,5))
 
 for i in plots:
 	i.set_aspect(1.0)
@@ -67,13 +73,20 @@ for i in plots:
 titles = ["Ex field", "Ey field", "Ez field"]
 
 for i in range(0, 3):
-	plots[i].pcolor(X,Y,fields[i])
+	abs_max = vmax=np.max(abs(fields[i]))
+	norm = mpl.colors.Normalize(vmin=-abs_max,vmax=abs_max)
+	
+	im = plots[i].pcolormesh(X,Y,fields[i], cmap=cmap, shading=shading, norm=norm)
 	plots[i].set_title(titles[i])
+	
+	divider = make_axes_locatable(plots[i])
+	cax = divider.append_axes("right", size="5%", pad=0.05)
+	fig.colorbar(im, cax=cax)
 
 plt.tight_layout()
 plt.savefig("E-Fields.png")
 
-fig2, plots2 = plt.subplots(1, 3, figsize=(10,5))
+fig2, plots2 = plt.subplots(1, 3, figsize=(15,5))
 
 for i in plots2:
 	i.set_aspect(1.0)
@@ -83,8 +96,17 @@ for i in plots2:
 titles = ["Hx field", "Hy field", "Hz field"]
 
 for i in range(0, 3):
-	plots2[i].pcolor(X,Y,fields[i+3])
+	abs_max = vmax=np.max(abs(fields[i+3]))
+	norm = mpl.colors.Normalize(vmin=-abs_max,vmax=abs_max)
+	
+	im = plots2[i].pcolormesh(X,Y,fields[i+3], cmap=cmap, shading=shading, norm=norm)
 	plots2[i].set_title(titles[i])
+
+	divider = make_axes_locatable(plots2[i])
+	cax = divider.append_axes("right", size="5%", pad=0.05)
+	fig2.colorbar(im, cax=cax)
+
+
 
 plt.tight_layout()
 plt.savefig("H-fields.png")

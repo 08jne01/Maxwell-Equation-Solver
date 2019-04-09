@@ -22,6 +22,7 @@ struct Config
 	std::string fiber;
 	int timers;
 	int screenSize;
+	std::string colorMapFileName;
 	int sweepType;
 	double overlapConfidence;
 	double sweepStart;
