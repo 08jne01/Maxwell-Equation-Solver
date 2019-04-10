@@ -8,8 +8,8 @@ MaxwellSolver::MaxwellSolver(Config& conf): config(conf)
 	nx = config.pointsX;
 	ny = config.pointsY;
 
-	nx = 4;
-	ny = 2;
+	//nx = 4;
+	//ny = 2;
 
 	m = nx * ny;
 
@@ -175,8 +175,8 @@ void MaxwellSolver::buildBoundaries()
 		{
 			int superI = index(i, j);
 			//Set Permativities
-			//Vector3 permVec = getPermComponent(i, j);
-			Vector3 permVec = Vector3(1.0, 1.0, 1.0);
+			Vector3 permVec = getPermComponent(i, j);
+			//Vector3 permVec = Vector3(1.0, 1.0, 1.0);
 			coeffsPermX.push_back(Triplet(superI, superI, permVec.x));
 			coeffsPermY.push_back(Triplet(superI, superI, permVec.y));
 			coeffsPermZInverse.push_back(Triplet(superI, superI, 1.0 / permVec.z));
@@ -273,7 +273,7 @@ void MaxwellSolver::buildMatrix()
 	//Uy_sym.setFromTriplets(coeffsUySym.begin(), coeffsUySym.end());
 	//Clear coeffs from memory
 
-	std::cout << Ux << std::endl;
+	//std::cout << Ux << std::endl;
 
 	coeffsUx.clear();
 	coeffsUy.clear();
