@@ -13,79 +13,23 @@ Dependancies:
 
 **Install and Compile(linux)**
 
-*Root Access*
+Clone the repository ```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
 
-```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
+Locate the install shell script ```cd Maxwell-Equation-Solver```
 
-```sudo apt-get install libsfml-dev```
+Run the script with ```bash install.sh```
 
-```git clone https://github.com/eigenteam/eigen-git-mirror.git```
+It will download required files and compile the binary for use.
 
-```git clone https://github.com/yixuan/spectra.git```
-
-```cd spectra/include/```
-
-```sudo mv Spectra /usr/include/```
-
-```cd ../..```
-
-```cd eigen-git-mirror ```
-
-```sudo mv Eigen /usr/include/```
-
-```cd ..```
-
-```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
-
-```g++ -Ofast -o max.out main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp FieldViewer.cpp -lsfml-graphics -lsfml-window -lsfml-system -lpthread -fopenmp```
-
-To then run the program just use: ```max.out``` followed by any of the commands listed in the commands section.
-
-*Non-root Access*
-
-```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
-
-```wget https://en.sfml-dev.org/files/SFML-2.5.1-linux-gcc-64-bit.tar.gz```
-
-```tar -xvf SFML-2.5.1-linux-gcc-64-bit.tar.gz``` < check that it is the same file as the one you downloaded version may change.
-
-You can get the latest SFML from https://en.sfml-dev.org/download.php
-
-```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
-
-```rm -r lib```
-
-```cd include```
-
-```rm -r SFML```
-
-```cd ../../..```
-
-```cd SFML-2.5.1``` or whatever version you have
-
-```mv lib <Your_Directory_YouDownloaded_Maxwell_Solver_To>/Maxwell-Equation-Solver/Maxwell-Equation-Solver/```
-
-```cd include```
-
-```mv SFML <Your_Directory_YouDownloaded_Maxwell_Solver_To>/Maxwell-Equation-Solver/Maxwell-Equation-Solver/include/```
-
-```cd ..```
-
-```cd Maxwell-Equation-Solver/Maxwell-Equation-Solver```
-
-```g++ -Ofast -o max.out -I./include -L./lib -std=c++11 main.cpp Program.cpp Field.cpp FileHandler.cpp Sweep.cpp MaxwellSolver.cpp Clock.cpp FieldViewer.cpp -lsfml-graphics -lsfml-window -lsfml-system -lpthread -fopenmp```
-
-To then run the program just use: ```export LD_LIBRARY_PATH=./lib && ./max.out``` followed by any of the commands listed in the commands section.
-
-After the first run you can then use the ```./max.out``` alone to run it.
+To then run the program just use: ```./run.sh``` followed by any of the commands listed in the commands section.
 
 **Install (windows)**
 
 To install just extract binary zip into a folder, be sure to keep the folders with the executable.
 
-**Usage (windows)**
+**Usage**
 
-Fiber parameters can be edited in the Resources/config.ini file. Any lines with a proceeding # will be ignored by the parser so you can comment in these files. You can have multiple config files by just creating several config files of different names. You can use these by entering their filename when starting the program.
+Fiber parameters can be edited in the Config/config.ini file. Any lines with a proceeding # will be ignored by the parser so you can comment in these files. You can have multiple config files by just creating several config files of different names. You can use these by entering their filename when starting the program.
 
 To run the program just execute the exe, press enter for default config file. The program will execute for the predetermined settings.
 
