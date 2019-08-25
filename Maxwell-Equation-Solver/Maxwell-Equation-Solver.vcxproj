@@ -168,6 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\install.sh" />
+    <None Include="..\run.sh" />
     <None Include="Resources\cool.dat" />
     <None Include="Resources\coolwarm.dat" />
     <None Include="Resources\gnuplot.dat" />
