@@ -45,7 +45,7 @@ int Program::mainLoop()
 		Sweep sweep(fileHandler.config.sweepType, fileHandler);
 		sweep.wavelengthTrace(fileHandler.config.sweepStart, fileHandler.config.sweepEnd, fileHandler.config.sweepPoints);
 		sweep.outputData(fileHandler.config.sweepFilename);
-		system("PAUSE");
+		//system("PAUSE");
 	}
 
 	else

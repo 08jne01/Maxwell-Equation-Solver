@@ -168,6 +168,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\install.sh" />
+    <None Include="Resources\cool.dat" />
+    <None Include="Resources\coolwarm.dat" />
+    <None Include="Resources\gnuplot.dat" />
+    <None Include="Resources\inferno.dat" />
+    <None Include="Resources\jet.dat" />
+    <None Include="Resources\magma.dat" />
+    <None Include="Resources\plasma.dat" />
+    <None Include="Resources\RdYlBlu.dat" />
+    <None Include="Resources\RdYlBu.dat" />
+    <None Include="Resources\spectral.dat" />
+    <None Include="Resources\viridis.dat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

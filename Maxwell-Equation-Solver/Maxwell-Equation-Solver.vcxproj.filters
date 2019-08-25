@@ -125,5 +125,38 @@
     <None Include="..\install.sh">
       <Filter>Install</Filter>
     </None>
+    <None Include="Resources\cool.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\coolwarm.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\gnuplot.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\inferno.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\jet.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\magma.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\plasma.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\RdYlBlu.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\RdYlBu.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\spectral.dat">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="Resources\viridis.dat">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
