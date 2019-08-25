@@ -99,14 +99,14 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 	//fopen_s(&in, filenameCharArray, "rb");
 	unsigned char info[54];
 	//fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
-	fread(info, 54 * sizeof(unsigned char), sizeof(unsigned char), in);
+	size_t result = fread(info, 54 * sizeof(unsigned char), sizeof(unsigned char), in);
 	int width = *(int*)&info[18];
 	int height = *(int*)&info[22];
 	config.pointsX = width;
 	config.pointsY = height;
 	int size = 3 * width * height;
 	unsigned char* data = new unsigned char[size];
-	fread(data, size * sizeof(unsigned char), sizeof(unsigned char), in);
+	result = fread(data, size * sizeof(unsigned char), sizeof(unsigned char), in);
 	//fread_s(data, size * sizeof(unsigned char), sizeof(unsigned char), size, in);
 	fclose(in);
 	free(filenameCharArray);
