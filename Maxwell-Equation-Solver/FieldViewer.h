@@ -44,7 +44,7 @@ public:
 	};
 
 private:
-	int w, h, modeSet, displayField, gOn, mode, eigs, overlapOn;
+	int w, h, modeSet, displayField, gOn, mode, eigs, overlapOn, textOn;
 	std::vector<double> overlaps;
 	std::vector<Color> colorMap;
 	Field field;

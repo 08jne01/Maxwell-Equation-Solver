@@ -137,8 +137,8 @@ void FileHandler::readCSV(std::string filename, std::vector<std::vector<double>>
 
 	{
 		std::cout << "Failed to open data!" << std::endl;
-		char arr[20];
-		strerror_s(arr, errno);
+		//char arr[20];
+		char* arr = strerror(errno);
 		std::cout << "Error: " << arr << std::endl;
 		return;
 	}

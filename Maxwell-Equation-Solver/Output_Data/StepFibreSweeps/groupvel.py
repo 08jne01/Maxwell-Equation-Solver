@@ -45,9 +45,9 @@ def plot_sweep(filename, char, color, mode):
 
 	V = np.array(V)*1000.
 
-	#wavelength = np.array(temp_wavelength)
-	#wavelength = wavelength*10000
-	#neff = np.array(temp_neff)
+	wavelength = np.array(temp_wavelength)
+	wavelength = wavelength*10
+	neff = np.array(temp_neff)
 
 	groupVel = []
 	n = 0
@@ -63,12 +63,12 @@ def plot_sweep(filename, char, color, mode):
 
 	#popt, pcov = curve_fit(line, V, b)
 	#plt.plot(V, line(V, *popt), 'k-', linewidth=2)
-	plt.plot(V, b, color + char, markersize=10, markeredgewidth=3, label=("Mode " + mode))
-	plt.plot(V, b, color + '-')
+	#plt.plot(V, b, color + char, markersize=10, markeredgewidth=3, label=("Mode " + mode))
+	#plt.plot(V, b, color + '-')
 	#plt.plot(wavelength, neff, color + char, markersize=10, markeredgewidth=3, label=("Mode " + mode))
 	#plt.plot(wavelength, neff, color + '-')
 
-	#plt.plot(wavelength[:-1], groupVel, color + '-')
+	plt.plot(wavelength[:-1], groupVel, color + '-')
 	
 	
 filename = raw_input("Filename: ")
@@ -90,10 +90,10 @@ for i in range(0,6):
 
 
 
-plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
-plt.ylabel("Normalised propagation constant, $b$", fontsize=30)
-#plt.xlabel("Wavelength, $\lambda$ ($10^{-6}$)", fontsize=30)
-#plt.ylabel("Effective refractive index, $n_{eff}$", fontsize=30)
+#plt.xlabel("Normalised frequency, $V$ ($10^{-3}$)", fontsize=30)
+#plt.ylabel("Normalised propagation constant, $b$", fontsize=30)
+plt.xlabel("Wavelength, $\lambda$ ($10^{-6}$)", fontsize=30)
+plt.ylabel("Group Velocity / c, $v_g / c$", fontsize=30)
 #plt.xlim(0,12.4)
 #plt.ylim(0,1.0)
 #plt.xticks(np.linspace(0.0, 12,7), fontsize=24)
@@ -101,6 +101,6 @@ plt.xticks(fontsize=24)
 plt.yticks(fontsize=24)
 plt.legend()
 plt.tight_layout()
-plt.savefig('Dispersion.eps', format='eps')
-plt.savefig('Dispersion.png', format='png', dpi=200)
+plt.savefig('GpVel.eps', format='eps')
+plt.savefig('GpVel.png', format='png', dpi=200)
 plt.show()

@@ -25,4 +25,5 @@ private:
 	std::vector<double> drawGeometry;
 	std::vector<Vector2> neff;
 	std::vector<std::vector<double>> indexProfile;
+	sf::Font font;
 };

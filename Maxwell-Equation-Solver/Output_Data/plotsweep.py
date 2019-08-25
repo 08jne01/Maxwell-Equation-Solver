@@ -82,7 +82,7 @@ label_str = ['Mode 0', 'Mode 1', 'Mode 2','Mode 3','Mode 4','','0.20 $\mu m$ Sep
 point_types = ['x','o','^','s','v','P']
 colors = ['r','g','b','k','c','m']
 
-for i in range(0,num):
+for i in range(1,num):
 	prev_label = ''
 	if (i > 0):
 		prev_label = label_str[i-1]

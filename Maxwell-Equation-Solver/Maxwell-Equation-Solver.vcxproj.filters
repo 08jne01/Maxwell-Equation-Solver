@@ -34,6 +34,9 @@
     <Filter Include="Header Files\Structs">
       <UniqueIdentifier>{7f44051a-9674-4a92-9ed3-9d3666e2dddf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Install">
+      <UniqueIdentifier>{31bf4d0e-40ac-4276-8028-32e5bda85fcd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Interface.cpp">
@@ -117,5 +120,10 @@
     <ResourceCompile Include="Maxwell-Equation-Solver.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\install.sh">
+      <Filter>Install</Filter>
+    </None>
   </ItemGroup>
 </Project>

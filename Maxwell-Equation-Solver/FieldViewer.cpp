@@ -1,7 +1,7 @@
 #include "FieldViewer.h"
 
 FieldViewer::FieldViewer(const FileHandler& fileH, Field fieldInit, std::vector<double> drawGeometry): fileHandler(fileH),
-displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlapOn(0)
+displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlapOn(0), textOn(1)
 
 {
 	double ratio = (double)fileHandler.config.pointsY / (double)fileHandler.config.pointsX;
@@ -13,7 +13,7 @@ displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlapOn(0)
 }
 
 FieldViewer::FieldViewer(const FileHandler& fileH, Field fieldInit, std::vector<double> drawGeometry, std::vector<double> overlaps_) : fileHandler(fileH),
-displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlaps(overlaps_), overlapOn(1)
+displayField(0), modeSet(0), gOn(0), mode(0), field(fieldInit), overlaps(overlaps_), overlapOn(1),textOn(1)
 
 {
 	double ratio = (double)fileHandler.config.pointsY / (double)fileHandler.config.pointsX;
@@ -46,8 +46,8 @@ void FieldViewer::makeGeometryPoints(std::vector<double>& drawGeometry)
 		for (int j = 0; j < h; j++)
 
 		{
-			double val = getValue(drawGeometry, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
-			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(val, val, val, 100)));
+			//double val = getValue(drawGeometry, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
+			//if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(val, val, val, 100)));
 		}
 	}
 }
@@ -57,16 +57,14 @@ int FieldViewer::mainLoop()
 {
 	sf::Event events;
 	sf::Clock sfClock;
-	sf::Font font;
 	sf::Text text;
-
+	sf::Font font;
 	font.loadFromFile("Resources/arial.ttf");
 	text.setFont(font);
 	text.setCharacterSize(15);
 	text.setPosition(sf::Vector2f(0, 0));
 	text.setFillColor(sf::Color::Red);
 	windowText = "";
-	
 	
 	window.create(sf::VideoMode(w, h), "FDFD Maxwell Solver - Field Viewer");
 
@@ -103,7 +101,7 @@ int FieldViewer::mainLoop()
 
 		//Draw Here
 		draw();
-		window.draw(text);
+		if (textOn) window.draw(text);
 		window.display();
 
 	}
@@ -115,6 +113,7 @@ int FieldViewer::mainLoop()
 void FieldViewer::draw()
 
 {
+
 	window.draw(points);
 	if (gOn == 1) window.draw(geometry);
 }
@@ -212,8 +211,8 @@ double FieldViewer::getValue(std::vector<double> &gridPoints, int sideLengthX, i
 	int yVal0 = (int)yVal;
 	int yVal1 = yVal0 + 1;
 
-	double sX = pow(xVal - double(xVal0), 1);
-	double sY = pow(yVal - double(yVal0), 1);
+	double sX = xVal - double(xVal0);
+	double sY = yVal - double(yVal0);
 	double ix0, ix1, n0, n1;
 	n0 = gridPoints[xVal0 + yVal0 * sideLengthX];
 	n1 = gridPoints[xVal1 + yVal0 * sideLengthX];
@@ -374,6 +373,13 @@ void FieldViewer::keyCallBack(sf::Event events)
 			{
 				window.close();
 				mode = -1;
+				break;
+			}
+			case sf::Keyboard::T:
+
+			{
+				if (textOn == 1) textOn = 0;
+				else textOn = 1;
 				break;
 			}
 		}

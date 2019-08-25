@@ -23,4 +23,5 @@ private:
 	int w, h, eigs, displayField, mode, modeSet, gOn, willSweep; //Width, height
 	Field field;
 	FileHandler fileHandler;
+	sf::Font font;
 };
