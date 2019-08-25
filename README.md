@@ -13,6 +13,8 @@ Dependancies:
 
 **Install and Compile(linux)**
 
+Clone the repository ```git clone https://github.com/08jne01/Maxwell-Equation-Solver.git```
+
 Locate the install shell script ```cd Maxwell-Equation-Solver```
 
 Run the script with ```bash install.sh```
