@@ -1,6 +1,8 @@
 #!/bin/bash
 SFML_VERSION=SFML-2.5.1
 
+chmod a+x run.sh
+
 echo "Downloading..."
 wget https://en.sfml-dev.org/files/$SFML_VERSION-linux-gcc-64-bit.tar.gz
 tar -xvf $SFML_VERSION-linux-gcc-64-bit.tar.gz
