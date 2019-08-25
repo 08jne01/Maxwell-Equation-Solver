@@ -15,7 +15,7 @@ MaxwellSolver::MaxwellSolver(Config& conf): config(conf)
 
 	k = 2.0*PI / config.wavelength;
 	matrix.resize(2 * m, 2 * m);
-	perm = config.maxIndex*config.maxIndex;
+	//perm = config.maxIndex*config.maxIndex;
 	numEigs = config.numModes;
 	nConv = config.convergance;
 	deltaX = config.sizeOfStructure / config.numPointStructure;
@@ -49,17 +49,17 @@ int MaxwellSolver::index(int i, int j)
 	return i + j * nx;
 }
 
-void MaxwellSolver::setPerms(double maxIndex)
+void MaxwellSolver::setPerms()
 
 {
-	
-	perms.clear();
+	perms = permsValues;
+	/*perms.clear();
 	for (int i = 0; i < permsValues.size(); i++)
 
 	{
 		double val = (maxIndex - 1.0)*permsValues[i] / 255.0 + 1.0;
 		perms.push_back(val*val);
-	}
+	}*/
 	
 }
 
@@ -350,7 +350,8 @@ int MaxwellSolver::findModes(double sigma)
 	if (sigma < -0.9 && sigma > -1.1)
 
 	{
-		sigma = k * k * perm*1.0;
+		double maxPerm = std::max(config.maxIndexRed, std::max(config.maxIndexGreen, config.maxIndexBlue));
+		sigma = k * k * maxPerm *1.0;
 	}
 	//SparseGenComplexShiftSolve<double> op(matrix);
 	Spectra::SparseGenRealShiftSolve<double> op(matrix); //n/10

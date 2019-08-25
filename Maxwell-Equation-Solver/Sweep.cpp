@@ -132,8 +132,9 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	{
 		double wavelength = waveStep * i + startWave;
 		solver.setWavelength(wavelength);
-		if (fileHandler.config.profileOn) solver.setPerms(getIndex(wavelength));
-		else solver.setPerms(fileHandler.config.maxIndex);
+		//if (fileHandler.config.profileOn) solver.setPerms(getIndex(wavelength)); //This is broken for now!
+		//else solver.setPerms(fileHandler.config.maxIndex);
+		solver.setPerms();
 		solver.buildBoundaries();
 		solver.buildMatrix();
 
@@ -171,7 +172,7 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 			{
 				double prevOverlap = 0.0;
 				double curOverlap;
-				int closestMode;
+				int closestMode = -1;
 
 				std::vector<double> overlapsDiff;
 				//overlapsDiff.resize(curField.Ex.outerSize());

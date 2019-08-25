@@ -53,66 +53,44 @@ public:
 
 	}
 
-	Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz) :
+	Field(mat ex, mat ey, mat ez, mat hx, mat hy, mat hz):
 		Ex(ex), Ey(ey), Ez(ez),
 		Hx(hx), Hy(hy), Hz(hz)
 	{
 
 	}
 
-	std::string getFieldName(int field)
+	std::string getFieldName(int field) const
 
 	{
 		return fieldNames[field];
 	}
 
-	Field::mat getField(int field)
+	Field::mat getField(int field) const
 
 	{
 		switch (field)
 
 		{
 		case FIELD_EX:
-
-		{
 			return Ex;
-		}
 
 		case FIELD_EY:
-
-		{
 			return Ey;
-		}
 
 		case FIELD_EZ:
-
-		{
 			return Ez;
-		}
 
 		case FIELD_HX:
-
-		{
 			return Hx;
-		}
 
 		case FIELD_HY:
-
-		{
 			return Hy;
-		}
 
 		case FIELD_HZ:
-
-		{
 			return Hz;
-		}
-
 		default:
-
-		{
 			throw UndefinedField();
-		}
 		}
 	}
 

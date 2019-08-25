@@ -46,8 +46,8 @@ void FieldViewer::makeGeometryPoints(std::vector<double>& drawGeometry)
 		for (int j = 0; j < h; j++)
 
 		{
-			//double val = getValue(drawGeometry, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
-			//if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(val, val, val, 100)));
+			double val = getValue(drawGeometry, fileHandler.config.pointsX, fileHandler.config.pointsY, i, j, w, h);
+			if (val > 10) geometry.append(sf::Vertex(sf::Vector2f(i, (-j + h) % h), sf::Color(val, val, val, 100)));
 		}
 	}
 }
@@ -203,6 +203,7 @@ double FieldViewer::getValue(std::vector<double> &gridPoints, int sideLengthX, i
 
 {
 	//Interpolation algorithm (Similar to the last half of a perlin noise algorithm)
+	
 	double xVal = ((double)x / (double)w)*(double)sideLengthX;
 	double yVal = ((double)y / (double)h)*(double)sideLengthY;
 
@@ -211,19 +212,29 @@ double FieldViewer::getValue(std::vector<double> &gridPoints, int sideLengthX, i
 	int yVal0 = (int)yVal;
 	int yVal1 = yVal0 + 1;
 
-	double sX = xVal - double(xVal0);
-	double sY = yVal - double(yVal0);
-	double ix0, ix1, n0, n1;
-	n0 = gridPoints[xVal0 + yVal0 * sideLengthX];
-	n1 = gridPoints[xVal1 + yVal0 * sideLengthX];
+	if (xVal1 + yVal1 * sideLengthX < sideLengthX * sideLengthY)
 
-	ix0 = interpolate(n0, n1, sX);
+	{
+		double sX = xVal - double(xVal0);
+		double sY = yVal - double(yVal0);
+		double ix0, ix1, n0, n1;
+		n0 = gridPoints[xVal0 + yVal0 * sideLengthX];
+		n1 = gridPoints[xVal1 + yVal0 * sideLengthX];
 
-	n0 = gridPoints[xVal0 + yVal1 * sideLengthX];
-	n1 = gridPoints[xVal1 + yVal1 * sideLengthX];
+		ix0 = interpolate(n0, n1, sX);
 
-	ix1 = interpolate(n0, n1, sX);
-	return interpolate(ix0, ix1, sY);
+		n0 = gridPoints[xVal0 + yVal1 * sideLengthX];
+		n1 = gridPoints[xVal1 + yVal1 * sideLengthX];
+
+		ix1 = interpolate(n0, n1, sX);
+		return interpolate(ix0, ix1, sY);
+	}
+
+	else
+
+	{
+		return 0;
+	}
 }
 
 void FieldViewer::normalise(Eigen::VectorXd& vec, std::vector<double>& normalisedVals)

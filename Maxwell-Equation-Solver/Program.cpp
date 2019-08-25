@@ -22,7 +22,9 @@ Program::Program(std::string filename, int sweep, int changeneff, int neff): fil
 	std::cout << "Number of Modes: " << fileHandler.config.numModes << std::endl;
 	std::cout << "Wavelength: " << fileHandler.config.wavelength << std::endl;
 	std::cout << "Width of window in pixels: " << w << std::endl;
-	std::cout << "Max Index: " << fileHandler.config.maxIndex << std::endl;
+	std::cout << "Max Index Red: " << fileHandler.config.maxIndexRed << std::endl;
+	std::cout << "Max Index Green: " << fileHandler.config.maxIndexGreen << std::endl;
+	std::cout << "Max Index Blue: " << fileHandler.config.maxIndexBlue << std::endl;
 	std::cout << "File input name: " << fileHandler.config.fiber << std::endl;
 	std::cout << "=====================" << std::endl;
 }
@@ -82,8 +84,8 @@ int Program::calculate(std::vector<double>& localGeometry)
 	std::vector<double> perms;
 	fileHandler.getGeometry(perms, localGeometry);
 	MaxwellSolver max(fileHandler.config);
-	max.permsValues = localGeometry;
-	max.setPerms(fileHandler.config.maxIndex);
+	max.permsValues = perms;
+	max.setPerms();
 	max.buildBoundaries();
 	max.buildMatrix();
 

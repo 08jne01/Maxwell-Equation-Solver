@@ -1,12 +1,12 @@
 #include "FileHandler.h"
 //FileHandler class definitions
-FileHandler::FileHandler(std::string filename): error(0)
+FileHandler::FileHandler(const std::string filename): error(0)
 
 {
 	readConfig(filename);
 }
 
-void FileHandler::readConfig(std::string filename)
+void FileHandler::readConfig(const std::string filename)
 
 {
 	std::ifstream file;
@@ -23,6 +23,7 @@ void FileHandler::readConfig(std::string filename)
 		//char arr[20];
 		//strerror_s(arr, errno);
 
+		//Change this
 		char* arr = strerror(errno);
 
 		std::cout << "ERROR: " << arr << std::endl;
@@ -47,7 +48,7 @@ void FileHandler::readConfig(std::string filename)
 		}
 	}
 
-	if (conf.size() != 22)
+	if (conf.size() != 24)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -64,23 +65,25 @@ void FileHandler::readConfig(std::string filename)
 		conf[2] >> config.sizeOfStructure;
 		conf[3] >> config.numPointStructure;
 		conf[4] >> config.wavelength;
-		conf[5] >> config.maxIndex;
-		conf[6] >> config.neffGuess;
-		conf[7] >> config.convergance;
-		conf[8] >> config.fiber;
-		conf[9] >> config.timers;
-		conf[10] >> config.screenSize;
-		conf[11] >> config.colorMapFileName;
-		conf[12] >> config.sweepType;
-		conf[13] >> config.overlapConfidence;
-		conf[14] >> config.sweepStart;
-		conf[15] >> config.sweepEnd;
-		conf[16] >> config.sweepPoints;
-		conf[17] >> config.initMode;
-		conf[18] >> config.sweepFilename;
-		conf[19] >> config.profileOn;
-		conf[20] >> config.indexProfile;
-		conf[21] >> config.profileMultiplier;
+		conf[5] >> config.maxIndexRed;
+		conf[6] >> config.maxIndexGreen;
+		conf[7] >> config.maxIndexBlue;
+		conf[8] >> config.neffGuess;
+		conf[9] >> config.convergance;
+		conf[10] >> config.fiber;
+		conf[11] >> config.timers;
+		conf[12] >> config.screenSize;
+		conf[13] >> config.colorMapFileName;
+		conf[14] >> config.sweepType;
+		conf[15] >> config.overlapConfidence;
+		conf[16] >> config.sweepStart;
+		conf[17] >> config.sweepEnd;
+		conf[18] >> config.sweepPoints;
+		conf[19] >> config.initMode;
+		conf[20] >> config.sweepFilename;
+		conf[21] >> config.profileOn;
+		conf[22] >> config.indexProfile;
+		conf[23] >> config.profileMultiplier;
 	}
 }
 
@@ -114,17 +117,37 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 	for (int i = 0; i < width*height; i++)
 
 	{
-		double val1 = (double)(data[3 * (i)] + data[3 * (i)+1] + data[3 * (i)+2]) / (3.0);
-		double val2 = (config.maxIndex - 1.0)*val1 / 255.0 + 1.0;
-		drawGeometry.push_back(val1);
-		geometry.push_back(val2*val2);
+		
+		double b = data[3 * (i)];
+		double g = data[3 * (i) + 1];
+		double r = data[3 * (i) + 2];
+
+		//std::cout << r << std::endl;
+
+		double avg = (r + g + b) / (3.0);
+		//double val2 = (config.maxIndex - 1.0)*val1 / 255.0 + 1.0;
+		double refractiveIndex = indexAlgorithm(r, g, b);
+		drawGeometry.push_back(std::max(r, std::max(g, b)));
+		geometry.push_back(refractiveIndex*refractiveIndex);
 	}
 	//Need to make a check for sizes!
 	delete data;
 	std::cout << config.fiber << " geometry imported!" << std::endl;
 }
 
-void FileHandler::readCSV(std::string filename, std::vector<std::vector<double>>& dataVector, int columns, int ignoreLine)
+double FileHandler::indexAlgorithm(double r, double g, double b)
+
+{
+	double refR = (config.maxIndexRed - 1.0)* r / 255.0 + 1.0;
+	double refG = (config.maxIndexGreen - 1.0)* g / 255.0 + 1.0;
+	double refB = (config.maxIndexBlue - 1.0)* b / 255.0 + 1.0;
+
+	//std::cout << refR << " " << refG << " " << refB << std::endl;
+
+	return std::max(std::max(refG, refB), refR);
+}
+
+void FileHandler::readCSV(const std::string filename, std::vector<std::vector<double>>& dataVector, int columns, int ignoreLine) const
 
 {
 	std::ifstream in(filename);

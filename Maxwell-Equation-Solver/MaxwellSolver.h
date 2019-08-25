@@ -30,7 +30,7 @@ public:
 	void condense(SparseM &m1, SparseM &m2, SparseM &m3, SparseM &m4, SparseM &returnMatrix);
 	void condenseThread(SparseM &m1, std::vector<Triplet> &returnVec, int lowI, int lowJ);
 	void insertCoeff(std::vector<Triplet> &matrixCoeffs, int superI, int superJ, double val);
-	void setPerms(double maxIndex);
+	void setPerms();
 	Vector3 getPermComponent(int i, int j);
 
 	//Initialisers
@@ -70,5 +70,5 @@ private:
 	Eigen::MatrixXd eigenVectors;
 
 	int n, m, numEigs, nConv;
-	double k, deltaX, deltaY, perm;
+	double k, deltaX, deltaY;
 };
