@@ -3,7 +3,7 @@
 int main(int argc, char* argv[])
 
 {
-	std::string filename = "Resources/config.ini";
+	std::string filename = "Config/config.ini";
 
 	int width = 1000;
 	int willSweep = 0;
@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 				if (i + 1 <= argc - 1)
 
 				{
-					filename = "Resources/" + std::string(argv[i + 1]);
+					filename = "Config/" + std::string(argv[i + 1]);
 				}
 
 				else
