@@ -33,7 +33,9 @@ struct Config
 	int initMode;
 	std::string sweepFilename;
 	int profileOn;
-	std::string indexProfile;
+	std::string indexProfileRed;
+	std::string indexProfileGreen;
+	std::string indexProfileBlue;
 	double profileMultiplier;
 	int pointsX;
 	int pointsY;

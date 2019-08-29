@@ -123,8 +123,7 @@ void FieldViewer::setMode(int mode)
 {
 	//Sets the mode
 	std::stringstream os;
-	os << "Displaying " << field.getFieldName(displayField) << " Component" << std::endl
-		<< "Eigen Value: " << field.getFieldName(displayField) << std::endl;
+	os << "Displaying " << field.getFieldName(displayField) << " Component" << std::endl;
 
 	if (overlapOn == 1) os << "Overlap: " << overlaps[mode] << std::endl;
 
@@ -324,7 +323,7 @@ void FieldViewer::keyCallBack(sf::Event events)
 
 			{
 				displayField--;
-				if (displayField < 0) displayField = 5;
+				if (displayField < 0) displayField = 7;
 				modeSet = 0;
 				break;
 			}
@@ -333,7 +332,7 @@ void FieldViewer::keyCallBack(sf::Event events)
 
 			{
 				displayField++;
-				if (displayField > 5) displayField = 0;
+				if (displayField > 7) displayField = 0;
 				modeSet = 0;
 				break;
 			}

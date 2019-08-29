@@ -110,6 +110,12 @@
     <ClInclude Include="FieldViewer.h">
       <Filter>Header Files\Main</Filter>
     </ClInclude>
+    <ClInclude Include="MathsParser.h">
+      <Filter>Header Files\Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="Color.h">
+      <Filter>Header Files\Structs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="maxwell.ico">

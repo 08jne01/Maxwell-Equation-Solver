@@ -48,7 +48,7 @@ void FileHandler::readConfig(const std::string filename)
 		}
 	}
 
-	if (conf.size() != 24)
+	if (conf.size() != 26)
 
 	{
 		std::cout << "Error Reading Config File!" << std::endl;
@@ -82,29 +82,31 @@ void FileHandler::readConfig(const std::string filename)
 		conf[19] >> config.initMode;
 		conf[20] >> config.sweepFilename;
 		conf[21] >> config.profileOn;
-		conf[22] >> config.indexProfile;
-		conf[23] >> config.profileMultiplier;
+		conf[22] >> config.indexProfileRed;
+		conf[23] >> config.indexProfileGreen;
+		conf[24] >> config.indexProfileBlue;
+		conf[25] >> config.profileMultiplier;
 	}
 }
 
-void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>& drawGeometry)
+void FileHandler::loadGeometry()
 
 {
 	//Allocate memory for filename and convert filename to char array so that string can be used
-	char *filenameCharArray = (char*)malloc(sizeof(char) * (config.fiber.size() + 1));
+	char* filenameCharArray = (char*)malloc(sizeof(char) * (config.fiber.size() + 1));
 	//strcpy_s(filenameCharArray, config.fiber.size() + 1, config.fiber.c_str());
 
 	strcpy(filenameCharArray, config.fiber.c_str());
 
 	//Open file and create write buffer
 	//FILE *in;
-	FILE *in = fopen(filenameCharArray, "rb");
+	FILE* in = fopen(filenameCharArray, "rb");
 	//fopen_s(&in, filenameCharArray, "rb");
 	unsigned char info[54];
 	//fread_s(info, 54 * sizeof(unsigned char), sizeof(unsigned char), 54, in);
 	size_t result = fread(info, 54 * sizeof(unsigned char), sizeof(unsigned char), in);
-	int width = *(int*)&info[18];
-	int height = *(int*)&info[22];
+	int width = *(int*)& info[18];
+	int height = *(int*)& info[22];
 	config.pointsX = width;
 	config.pointsY = height;
 	int size = 3 * width * height;
@@ -114,33 +116,74 @@ void FileHandler::getGeometry(std::vector<double>& geometry, std::vector<double>
 	fclose(in);
 	free(filenameCharArray);
 
-	for (int i = 0; i < width*height; i++)
+	for (int i = 0; i < width * height; i++)
 
 	{
-		
+
 		double b = data[3 * (i)];
-		double g = data[3 * (i) + 1];
-		double r = data[3 * (i) + 2];
+		double g = data[3 * (i)+1];
+		double r = data[3 * (i)+2];
 
-		//std::cout << r << std::endl;
-
-		double avg = (r + g + b) / (3.0);
 		//double val2 = (config.maxIndex - 1.0)*val1 / 255.0 + 1.0;
-		double refractiveIndex = indexAlgorithm(r, g, b);
-		drawGeometry.push_back(std::max(r, std::max(g, b)));
-		geometry.push_back(refractiveIndex*refractiveIndex);
+
+		loadedGeometry.push_back(Color(r, g, b));
 	}
-	//Need to make a check for sizes!
+
 	delete data;
 	std::cout << config.fiber << " geometry imported!" << std::endl;
 }
 
-double FileHandler::indexAlgorithm(double r, double g, double b)
+void FileHandler::getDrawGeometry(std::vector<double>& drawGeometry)
 
 {
-	double refR = (config.maxIndexRed - 1.0)* r / 255.0 + 1.0;
-	double refG = (config.maxIndexGreen - 1.0)* g / 255.0 + 1.0;
-	double refB = (config.maxIndexBlue - 1.0)* b / 255.0 + 1.0;
+	for (int i = 0; i < loadedGeometry.size(); i++)
+
+	{
+		Color color = loadedGeometry[i];
+		double max = std::max(config.maxIndexRed, std::max(config.maxIndexGreen, config.maxIndexBlue));
+		drawGeometry.push_back(std::max(std::max(color.r*config.maxIndexRed/max, color.g*config.maxIndexGreen/max), color.b*config.maxIndexBlue/max));
+	}
+}
+
+void FileHandler::rebuildGeometry(std::vector<double>& geometry, double maxRed, double maxBlue, double maxGreen)
+
+{
+	geometry.clear();
+	for (int i = 0; i < loadedGeometry.size(); i++)
+
+	{
+		Color color = loadedGeometry[i];
+		double refractiveIndex = indexAlgorithm(color.r, color.g, color.b, maxRed, maxBlue, maxGreen);
+		geometry.push_back(refractiveIndex * refractiveIndex);
+	}
+}
+
+void FileHandler::getGeometry(std::vector<double>& geometry)
+
+{
+	for (int i = 0; i < loadedGeometry.size(); i++)
+
+	{
+		Color color = loadedGeometry[i];
+		double refractiveIndex = indexAlgorithm(color.r, color.g, color.b);
+		geometry.push_back(refractiveIndex*refractiveIndex);
+	}
+}
+
+double FileHandler::indexAlgorithm(double r, double g, double b, double rMax, double gMax, double bMax)
+
+{
+	if (bMax < 0)
+
+	{
+		rMax = config.maxIndexRed;
+		gMax = config.maxIndexGreen;
+		bMax = config.maxIndexBlue;
+	}
+	
+	double refR = (rMax - 1.0) * r / 255.0 + 1.0;
+	double refG = (gMax - 1.0) * g / 255.0 + 1.0;
+	double refB = (bMax - 1.0) * b / 255.0 + 1.0;
 
 	//std::cout << refR << " " << refG << " " << refB << std::endl;
 

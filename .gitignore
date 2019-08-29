@@ -353,3 +353,5 @@ ASALocalRun/
 /Maxwell-Equation-Solver/Config/OldConfigs
 /Maxwell-Equation-Solver/Fibers/OldFibres
 /Maxwell-Equation-Solver/Output_Data/OldData
+/Maxwell-Equation-Solver/Fibers/AccurateWaveguide.psd
+/Maxwell-Equation-Solver/Fibers/LNSiO2Waveguide.psd

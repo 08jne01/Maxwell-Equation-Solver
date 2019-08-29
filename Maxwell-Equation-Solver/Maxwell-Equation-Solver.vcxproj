@@ -147,11 +147,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Clock.h" />
+    <ClInclude Include="Color.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="FieldViewer.h" />
     <ClInclude Include="FileHandler.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Interface.h" />
+    <ClInclude Include="MathsParser.h" />
     <ClInclude Include="MaxwellSolver.h" />
     <ClInclude Include="Program.h" />
     <ClInclude Include="resource.h" />

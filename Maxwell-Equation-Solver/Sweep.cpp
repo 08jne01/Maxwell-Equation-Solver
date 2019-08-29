@@ -61,48 +61,110 @@ double Sweep::lerp(double d1, double d2, double w)
 	return d1 + w * (d2 - d1);
 }
 
-double Sweep::getIndex(double wavelength)
+double Sweep::getIndex(double wavelength, int material)
 
 {
-	wavelength *= fileHandler.config.profileMultiplier;
+	//
+	int type = 0;
 
-	double minWavelength, maxWavelength;
-	minWavelength = indexProfile[0][0];
-	maxWavelength = indexProfile[indexProfile.size() - 1][0];
+	std::vector<std::vector<double>> indexProfile;
 
-	if (wavelength < minWavelength)
+	switch (material)
 
 	{
-		double n = indexProfile[0][1];
-		std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
-		return n;
+	case RED_MATERIAL:
+		type = redProfileType;
+		if (!type) indexProfile = indexProfileRed;
+		break;
+	case GREEN_MATERIAL:
+		type = greenProfileType;
+		if (!type) indexProfile = indexProfileGreen;
+		break;
+	case BLUE_MATERIAL:
+		type = blueProfileType;
+		if (!type) indexProfile = indexProfileBlue;
+		break;
 	}
 
-	if (wavelength > maxWavelength)
+	if (type == 1)
 
 	{
-		double n = indexProfile[indexProfile.size() - 1][1];
-		std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
-		return n;
-	}
-
-	int minIndex;
-	for (int i = 0; i < indexProfile.size(); i++)
-
-	{
-		double diff = ( wavelength - indexProfile[i][0]);
-		if (diff <= 0)
+		switch (material)
 
 		{
-			minIndex = i - 1;
-			break;
+		case RED_MATERIAL:
+
+		{
+			double value = redParser.callFunction<double>({ wavelength });
+			std::cout << value << std::endl;
+			return value;
+		}
+			
+		case GREEN_MATERIAL:
+			return greenParser.callFunction<double>({ wavelength });
+		case BLUE_MATERIAL:
+			return blueParser.callFunction<double>({ wavelength });
 		}
 	}
 
-	double weight = wavelength - indexProfile[minIndex][0];
-	double maxIndex = lerp(indexProfile[minIndex][1], indexProfile[minIndex + 1][1], weight);
-	std::cout << "Using Max Index: " << maxIndex << std::endl;
-	return maxIndex;
+	else if (type == -1)
+
+	{
+		switch (material)
+
+		{
+		case RED_MATERIAL:
+			return fileHandler.config.maxIndexRed;
+		case GREEN_MATERIAL:
+			return fileHandler.config.maxIndexGreen;
+		case BLUE_MATERIAL:
+			return fileHandler.config.maxIndexBlue;
+		}
+	}
+
+	else
+
+	{
+		wavelength *= fileHandler.config.profileMultiplier;
+
+		double minWavelength, maxWavelength;
+		minWavelength = indexProfile[0][0];
+		maxWavelength = indexProfile[indexProfile.size() - 1][0];
+
+		if (wavelength < minWavelength)
+
+		{
+			double n = indexProfile[0][1];
+			std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
+			return n;
+		}
+
+		if (wavelength > maxWavelength)
+
+		{
+			double n = indexProfile[indexProfile.size() - 1][1];
+			std::cout << "Warning wavelength selected outside of index profile! Index: " << n << std::endl;
+			return n;
+		}
+
+		int minIndex;
+		for (int i = 0; i < indexProfile.size(); i++)
+
+		{
+			double diff = (wavelength - indexProfile[i][0]);
+			if (diff <= 0)
+
+			{
+				minIndex = i - 1;
+				break;
+			}
+		}
+
+		double weight = wavelength - indexProfile[minIndex][0];
+		double maxIndex = lerp(indexProfile[minIndex][1], indexProfile[minIndex + 1][1], weight);
+		std::cout << "Using Max Index: " << maxIndex << std::endl;
+		return maxIndex;
+	}
 }
 
 void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
@@ -112,13 +174,66 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	Clock clock;
 	std::cout << "Initialising Sweep..." << std::endl;
 	std::vector<double> perms;
-	fileHandler.getGeometry(perms, drawGeometry);
+	fileHandler.loadGeometry();
+	fileHandler.getDrawGeometry(drawGeometry);
+	fileHandler.getGeometry(perms);
 	MaxwellSolver solver(fileHandler.config);
-	solver.permsValues = drawGeometry;
+	solver.setPerms(perms);
 	
 	//solver.setPerms(fileHandler.config.maxIndex);
 	
-	if (fileHandler.config.profileOn) fileHandler.readCSV(fileHandler.config.indexProfile, indexProfile, 2, 1);
+	if (fileHandler.config.profileOn)
+
+	{
+		if (fileHandler.config.indexProfileRed[0] == '$')
+
+		{
+			if (fileHandler.config.indexProfileRed[1] == '$') redProfileType = -1;
+			else
+
+			{
+				std::string function = fileHandler.config.indexProfileRed.substr(1);
+				std::cout << "Using function " << function << " for red" << std::endl;
+				redParser.setFunction(function, { "lambda" });
+				redProfileType = 1;
+			}
+		}
+
+		else fileHandler.readCSV(fileHandler.config.indexProfileRed, indexProfileRed, 2, 1), redProfileType = 0;
+
+		if (fileHandler.config.indexProfileGreen[0] == '$')
+
+		{
+			if (fileHandler.config.indexProfileGreen[1] == '$') greenProfileType = -1;
+			else
+
+			{
+				std::string function = fileHandler.config.indexProfileGreen.substr(1);
+				std::cout << "Using function " << function << " for green" << std::endl;
+				greenParser.setFunction(function, { "lambda" });
+				greenProfileType = 1;
+			}
+			
+		}
+		else fileHandler.readCSV(fileHandler.config.indexProfileGreen, indexProfileGreen, 2, 1), greenProfileType = 0;
+
+		if (fileHandler.config.indexProfileBlue[0] == '$')
+
+		{
+			if (fileHandler.config.indexProfileBlue[1] == '$') blueProfileType = -1;
+			else
+
+			{
+				std::string function = fileHandler.config.indexProfileBlue.substr(1);
+				std::cout << "Using function " << function << " for blue" << std::endl;
+				blueParser.setFunction(function, { "lambda" });
+				blueProfileType = 1;
+			}
+			
+		}
+		else fileHandler.readCSV(fileHandler.config.indexProfileBlue, indexProfileBlue, 2, 1), blueProfileType = 0;
+	}
+		
 
 	int prevMode = fileHandler.config.initMode;
 	double prevEig, prevGuess;
@@ -132,9 +247,9 @@ void Sweep::wavelengthTrace(double startWave, double endWave, int steps)
 	{
 		double wavelength = waveStep * i + startWave;
 		solver.setWavelength(wavelength);
-		//if (fileHandler.config.profileOn) solver.setPerms(getIndex(wavelength)); //This is broken for now!
-		//else solver.setPerms(fileHandler.config.maxIndex);
-		solver.setPerms();
+		if (fileHandler.config.profileOn) fileHandler.rebuildGeometry(solver.perms, getIndex(wavelength,  RED_MATERIAL), getIndex(wavelength, GREEN_MATERIAL), getIndex(wavelength, BLUE_MATERIAL));
+		else fileHandler.rebuildGeometry(solver.perms, fileHandler.config.maxIndexRed, fileHandler.config.maxIndexGreen, fileHandler.config.maxIndexBlue);
+		//solver.setPerms();
 		solver.buildBoundaries();
 		solver.buildMatrix();
 

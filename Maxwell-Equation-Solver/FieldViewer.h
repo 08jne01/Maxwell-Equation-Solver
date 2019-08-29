@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 #include "MaxwellSolver.h"
+#include "Color.h"
 #include "Field.h"
 
 class FieldViewer
@@ -23,25 +24,7 @@ public:
 	double interpolate(double d1, double d2, double w);
 	double getValue(std::vector<double>& gridPoints, int sideLengthX, int sideLengthY, int x, int y, int w, int h);
 
-	struct Color
-
-	{
-		Color()
-
-		{
-
-		}
-
-		Color(int r_, int g_, int b_): r(r_), g(g_), b(b_)
-
-		{
-
-		}
-
-		int r;
-		int g;
-		int b;
-	};
+	
 
 private:
 	int w, h, modeSet, displayField, gOn, mode, eigs, overlapOn, textOn;

@@ -49,10 +49,10 @@ int MaxwellSolver::index(int i, int j)
 	return i + j * nx;
 }
 
-void MaxwellSolver::setPerms()
+void MaxwellSolver::setPerms(const std::vector<double>& permativities)
 
 {
-	perms = permsValues;
+	perms = permativities;
 	/*perms.clear();
 	for (int i = 0; i < permsValues.size(); i++)
 
@@ -463,6 +463,8 @@ Field MaxwellSolver::constructField()
 
 	if (config.timers == 1) std::cout << "Done in " << c.elapsed() << " ms" << std::endl;
 
+	field.makeTEAndTM();
+	std::cout << "here " << std::endl;
 	return field;
 	
 }
