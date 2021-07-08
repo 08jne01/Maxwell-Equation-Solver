@@ -1,5 +1,7 @@
 # Maxwell-Equation-Solver
 
+Note there is a new version which can  be found here: https://github.com/08jne01/Simple-Maxwell-FDFD.
+
 This is a Finite Difference Frequency Domain sovler for maxwells equations in an optical fiber/waveguide implemented in C++. This is an implementation of the paper: https://doi.org/10.1364/OE.10.000853.
 
 Some example modes in different fibers https://imgur.com/a/CVyIGNq
